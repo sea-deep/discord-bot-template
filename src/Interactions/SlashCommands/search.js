@@ -1,3 +1,4 @@
+import { ApplicationCommandOptionType } from "discord.js";
 import SlashCommand from "../../structures/SlashCommand.js";
 
 export default new SlashCommand({
@@ -6,7 +7,7 @@ export default new SlashCommand({
     description: "Search command with autocomplete",
     options: [
       {
-        type: 3, // String
+        type: ApplicationCommandOptionType.String,
         name: "query",
         description: "The search query",
         autocomplete: true,

@@ -1,3 +1,4 @@
+import { ApplicationCommandOptionType } from "discord.js";
 import SlashCommand from "../../structures/SlashCommand.js";
 
 export default new SlashCommand({
@@ -6,7 +7,7 @@ export default new SlashCommand({
     description: "Hello command group",
     options: [
       {
-        type: 1, // Subcommand
+        type: ApplicationCommandOptionType.Subcommand,
         name: "world",
         description: "A hello world subcommand example",
       },
