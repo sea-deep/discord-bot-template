@@ -199,17 +199,17 @@ export default new HybridCommand({
       },
       fields: [
         {
-          name: "⚙️ Configuration Status",
-          value: `• **Prefix**: \`${prefix}\`\n• **Developers**: ${devsList}\n• **Environment**: ${modeStatus}`,
+          name: `🤖 About ${client.user.username}`,
+          value: `• **Prefix**: \`${prefix}\`\n• **Developers**: ${devsList}\n• **Mode**: ${modeStatus}`,
           inline: false,
         },
         {
-          name: "💡 Command Indicators",
-          value: `• \`/command\` - Slash-only command\n• \`${prefix}command\` - Prefix-only command\n• \`Hybrid\` - Works dynamically on both Prefix & Slash`,
+          name: "💡 Command Type Guide",
+          value: `• \`/command\` — Slash-only command\n• \`${prefix}command\` — Prefix-only command\n• \`Hybrid\` — Supported on both Prefix & Slash`,
           inline: false,
         },
         {
-          name: `📁 Category: General (${defaultCommands.length} commands)`,
+          name: `📁 General Commands (${defaultCommands.length})`,
           value: formattedList || "*No commands found in this category.*",
           inline: false,
         }
