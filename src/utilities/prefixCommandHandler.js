@@ -12,6 +12,15 @@ try {
     const command = module.default;
 
     if (command && command.name) {
+      // Resolve category fallback based on parent folder name
+      if (!command.category) {
+        const parts = file.split("/");
+        const parentFolder = parts[parts.length - 2];
+        command.category = (parentFolder === "PrefixCommands") ? "general" : parentFolder.toLowerCase();
+      } else {
+        command.category = command.category.toLowerCase();
+      }
+
       client.prefixCommands.set(command.name, command);
     }
   }

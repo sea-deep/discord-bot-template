@@ -10,6 +10,7 @@ export default class HybridCommand {
    * @param {Object} data
    * @param {string} data.name - Command name (lower case, alphanumeric).
    * @param {string} data.description - Description.
+   * @param {string} [data.category] - Command category name.
    * @param {string[]} [data.aliases] - Prefix command aliases.
    * @param {string} [data.usage] - Prefix usage pattern info.
    * @param {Object[]} [data.options] - Slash and prefix positional options.
@@ -38,6 +39,7 @@ export default class HybridCommand {
 
     this.name = data.name;
     this.description = data.description;
+    this.category = data.category || null;
     this.aliases = data.aliases || [];
     this.usage = data.usage || "";
     this.options = data.options || [];
@@ -52,6 +54,7 @@ export default class HybridCommand {
     
     // Store the developer's execution block internally
     this.run = data.execute;
+    this.commandType = "hybrid";
 
     // Build standard slash command metadata structure for registerCommands.js
     this.data = {

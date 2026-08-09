@@ -21,6 +21,15 @@ try {
     }
 
     if (command.data && command.data.name) {
+      // Resolve category fallback based on parent folder name
+      if (!command.category) {
+        const parts = file.split("/");
+        const parentFolder = parts[parts.length - 2];
+        command.category = (parentFolder === "SlashCommands") ? "general" : parentFolder.toLowerCase();
+      } else {
+        command.category = command.category.toLowerCase();
+      }
+
       client.slashCommands.set(command.data.name, command);
       client.slashCommandsArray.push(command.data);
     }

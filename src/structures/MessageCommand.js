@@ -6,6 +6,7 @@ export default class MessageCommand {
    * @param {Object} data
    * @param {string} data.name - The command name.
    * @param {string} [data.description] - Command description.
+   * @param {string} [data.category] - Command category name.
    * @param {string[]} [data.aliases] - Command aliases.
    * @param {string} [data.usage] - Usage pattern instructions.
    * @param {boolean} [data.guildOnly] - If the command is guild-only.
@@ -29,6 +30,7 @@ export default class MessageCommand {
 
     this.name = data.name;
     this.description = data.description || "";
+    this.category = data.category || null;
     this.aliases = data.aliases || [];
     this.usage = data.usage || "";
     this.guildOnly = data.guildOnly ?? false;
@@ -39,5 +41,6 @@ export default class MessageCommand {
     this.ownerOnly = data.ownerOnly ?? false;
     this.developerOnly = data.developerOnly ?? false;
     this.execute = data.execute;
+    this.commandType = "prefix";
   }
 }
