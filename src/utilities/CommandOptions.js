@@ -11,10 +11,11 @@ const messageCooldowns = new Map();
  * @returns {Promise<boolean>} - True if checks passed, false if failed.
  */
 export async function handleApplicationCommandOptions(interaction, command) {
-  const options = command.options || {};
+  // Normalize settings lookup: Hybrid has them at root, Slash has them under options
+  const settings = command.commandType === "hybrid" ? command : (command.options || {});
 
   // 1. Owner Check
-  if (options.ownerOnly) {
+  if (settings.ownerOnly) {
     if (interaction.user.id !== config.users.ownerId) {
       await interaction.reply({
         content: config.messages.NOT_BOT_OWNER,
@@ -25,7 +26,7 @@ export async function handleApplicationCommandOptions(interaction, command) {
   }
 
   // 2. Developer Check
-  if (options.developerOnly) {
+  if (settings.developerOnly) {
     const devs = config.users.developers || [];
     if (!devs.includes(interaction.user.id)) {
       await interaction.reply({
@@ -37,7 +38,7 @@ export async function handleApplicationCommandOptions(interaction, command) {
   }
 
   // 3. Guild Only Check
-  if (options.guildOnly) {
+  if (settings.guildOnly) {
     if (!interaction.guild) {
       await interaction.reply({
         content: "❌ This command can only be executed within a server.",
@@ -48,7 +49,7 @@ export async function handleApplicationCommandOptions(interaction, command) {
   }
 
   // 4. NSFW Check
-  if (options.nsfw) {
+  if (settings.nsfw) {
     if (interaction.guild && !interaction.channel.nsfw) {
       await interaction.reply({
         content: config.messages.CHANNEL_NOT_NSFW,
@@ -83,10 +84,10 @@ export async function handleApplicationCommandOptions(interaction, command) {
   }
 
   // 5. Cooldown Check
-  if (options.cooldown) {
+  if (settings.cooldown) {
     const now = Date.now();
     const commandName = command.data.name;
-    const cooldownAmount = options.cooldown;
+    const cooldownAmount = settings.cooldown;
 
     if (!slashCooldowns.has(interaction.user.id)) {
       slashCooldowns.set(interaction.user.id, new Map());
