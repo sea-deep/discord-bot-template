@@ -53,7 +53,7 @@ client.connect = async () => {
     // Deploy / register application commands
     await import("./src/utilities/registerCommands.js");
 
-    await client.login(process.env.TOKEN || process.env.CLIENT_TOKEN);
+    await client.login(process.env.CLIENT_TOKEN);
   } catch (err) {
     Logger.error("Failed to connect or load handlers:", err);
     process.exit(1);
