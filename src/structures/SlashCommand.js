@@ -7,6 +7,7 @@ export default class SlashCommand {
    * @param {import("discord.js").RESTPostAPIChatInputApplicationCommandsJSONBody|import("discord.js").SlashCommandBuilder|Object} data.data - Command metadata for registration.
    * @param {Object} [data.options] - Execution checks/options.
    * @param {string} [data.options.category] - Command category name.
+   * @param {string[]} [data.options.examples] - Example usage strings (without leading prefixes).
    * @param {number} [data.options.cooldown] - Cooldown in milliseconds.
    * @param {boolean} [data.options.ownerOnly] - If only the bot owner can execute it.
    * @param {boolean} [data.options.developerOnly] - If only bot developers can execute it.
@@ -26,6 +27,7 @@ export default class SlashCommand {
     this.options = data.options || {};
     this.execute = data.execute || null;
     this.category = this.options.category || null;
+    this.examples = this.options.examples || [];
     this.commandType = "slash";
 
     if (!this.execute && (!this.data.options || !this.data.options.some(opt => opt.type === 1))) {

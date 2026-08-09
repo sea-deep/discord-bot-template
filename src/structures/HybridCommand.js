@@ -13,6 +13,7 @@ export default class HybridCommand {
    * @param {string} [data.category] - Command category name.
    * @param {string[]} [data.aliases] - Prefix command aliases.
    * @param {string} [data.usage] - Prefix usage pattern info.
+   * @param {string[]} [data.examples] - Example usage strings (without leading prefixes).
    * @param {Object[]} [data.options] - Slash and prefix positional options.
    * @param {number} [data.cooldown] - Cooldown in milliseconds.
    * @param {boolean} [data.guildOnly] - If command is guild-only.
@@ -42,6 +43,7 @@ export default class HybridCommand {
     this.category = data.category || null;
     this.aliases = data.aliases || [];
     this.usage = data.usage || "";
+    this.examples = data.examples || [];
     this.options = data.options || [];
     this.cooldown = data.cooldown || 0;
     this.guildOnly = data.guildOnly ?? false;

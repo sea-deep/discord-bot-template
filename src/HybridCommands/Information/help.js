@@ -110,6 +110,13 @@ export default new HybridCommand({
           embed.fields.push({ name: "Cooldown", value: `\`${targetCmd.cooldown / 1000}s\``, inline: true });
         }
 
+        // Examples formatting
+        if (targetCmd.examples && targetCmd.examples.length > 0) {
+          const currentPrefix = isSlash ? "/" : prefix;
+          const exList = targetCmd.examples.map(ex => `\`${currentPrefix}${ex}\``).join("\n");
+          embed.fields.push({ name: "Examples", value: exList });
+        }
+
         // Subcommands list if parent has subcommands registered
         const parentPrefix = `${targetCmd.name} `;
         const subcommandsList = [];

@@ -9,6 +9,7 @@ export default class MessageCommand {
    * @param {string} [data.category] - Command category name.
    * @param {string[]} [data.aliases] - Command aliases.
    * @param {string} [data.usage] - Usage pattern instructions.
+   * @param {string[]} [data.examples] - Example usage strings (without leading prefixes).
    * @param {boolean} [data.guildOnly] - If the command is guild-only.
    * @param {boolean} [data.args] - If the command requires arguments.
    * @param {Object} [data.permissions] - Permissions needed.
@@ -33,6 +34,7 @@ export default class MessageCommand {
     this.category = data.category || null;
     this.aliases = data.aliases || [];
     this.usage = data.usage || "";
+    this.examples = data.examples || [];
     this.guildOnly = data.guildOnly ?? false;
     this.args = data.args ?? false;
     this.permissions = data.permissions || { bot: [], user: [] };

@@ -6,6 +6,10 @@ export default new HybridCommand({
   description: "Make the bot repeat a message.",
   aliases: ["echo", "repeat"],
   usage: "<channel> <text>",
+  examples: [
+    "say #general Hello World",
+    "echo #announcements Important announcement!"
+  ],
   options: [
     {
       name: "channel",
