@@ -11,6 +11,18 @@
 
 ---
 
+## 🛠️ Included Handlers
+- **Event Handler**
+- **Prefix Command Handler**
+- **Slash Command Handler**
+- **Hybrid Command Handler**
+- **Button Handler**
+- **Modal Handler**
+- **Autocomplete Handler**
+- **Select Menu Handlers** (String, User, Role, Mentionable, Channel)
+
+---
+
 ## ✨ Features
 
 - ⚔️ **Hybrid Commands**: Write your logic once. The framework natively routes both `/slash` commands and `!prefix` commands to the exact same callback seamlessly.
