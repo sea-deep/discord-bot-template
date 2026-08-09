@@ -9,7 +9,7 @@ export default new Component({
     const ctx = new CommandContext(interaction);
 
     // 1. Ownership check - only the user who ran the help command can paginate
-    if (ctx.originalAuthor && ctx.user.id !== ctx.originalAuthor.id) {
+    if (ctx.user.id !== ctx.originalAuthor.id) {
       return await interaction.reply({
         content: "❌ You cannot control this help menu! Run your own `/help` or `d!help` command.",
         ephemeral: true,

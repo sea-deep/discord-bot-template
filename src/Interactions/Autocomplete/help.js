@@ -1,7 +1,7 @@
 import Autocomplete from "../../structures/Autocomplete.js";
 
 export default new Autocomplete({
-  commandName: "help",
+  name: "help",
   execute: async (interaction, client) => {
     const focusedValue = interaction.options.getFocused().toLowerCase();
 

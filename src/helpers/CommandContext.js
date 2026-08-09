@@ -46,8 +46,8 @@ export default class CommandContext {
         // Created by a Prefix Command message reply
         this.originalAuthor = msg.referencedMessage.author;
       } else {
-        // Fallback: search for first user mention in the message
-        this.originalAuthor = msg.mentions.users.first() || null;
+        // Fallback: search for first user mention in the message, otherwise fall back to trigger user
+        this.originalAuthor = msg.mentions.users.first() || this.user;
       }
     } else {
       // If it is the command itself, the original author is the one executing it

@@ -1,7 +1,7 @@
 import Autocomplete from "../../structures/Autocomplete.js";
 
 export default new Autocomplete({
-  commandName: "search",
+  name: "search",
   execute: async (interaction, client) => {
     const focusedValue = interaction.options.getFocused();
     const choices = ["apple", "banana", "cherry", "date", "elderberry", "fig", "grape"];

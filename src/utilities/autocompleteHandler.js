@@ -11,8 +11,8 @@ try {
     const module = await import(fileUrl);
     const component = module.default;
 
-    if (component && component.commandName) {
-      client.autocompletes.set(component.commandName, component);
+    if (component && component.name) {
+      client.autocompletes.set(component.name, component);
     }
   }
   Logger.success(`Loaded ${client.autocompletes.size} Autocomplete Components!`);
