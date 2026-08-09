@@ -4,7 +4,7 @@ import Logger from "../../helpers/Logger.js";
 import registerCommands from "../../utilities/registerCommands.js";
 
 export default new Event({
-  event: "ready",
+  event: "clientReady",
   once: true,
   execute: async (client: Client) => {
     Logger.success(`Logged in as ${client.user!.tag}!`);
