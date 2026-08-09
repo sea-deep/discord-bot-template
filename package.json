@@ -1,7 +1,7 @@
 {
   "name": "discord-bot-template",
   "version": "1.0.0",
-  "description": "A discord.js template to efficiently make scalable Discord Bots",
+  "description": "A discord.js template to efficiently make nice Discord Bots",
   "homepage": "https://github.com/sea-deep/discord-bot-template#readme",
   "bugs": {
     "url": "https://github.com/sea-deep/discord-bot-template/issues"
@@ -13,16 +13,21 @@
   "author": "sea-deep",
   "license": "GPL-3.0",
   "type": "module",
-  "main": "index.js",
+  "main": "dist/index.js",
   "scripts": {
-    "start": "npm install && node verify.js && node index.js",
-    "dev": "npm install && node verify.js && node --watch index.js",
-    "verify": "node verify.js"
+    "build": "tsc",
+    "start": "npm run build && node dist/index.js",
+    "dev": "tsx --watch index.ts"
   },
   "dependencies": {
     "colors": "^1.4.0",
     "discord.js": "^14.16.3",
     "dotenv": "^16.4.5",
     "glob": "^11.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "^26.2.0",
+    "tsx": "^4.23.11",
+    "typescript": "^7.0.2"
   }
 }
