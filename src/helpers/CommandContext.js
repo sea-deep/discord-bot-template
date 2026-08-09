@@ -5,19 +5,23 @@ import MessageOptionResolver from "./MessageOptionResolver.js";
  */
 export default class CommandContext {
   /**
-   * @param {import("discord.js").Message|import("discord.js").ChatInputCommandInteraction} interactionOrMessage 
+   * @param {import("discord.js").Message|import("discord.js").ChatInputCommandInteraction|import("discord.js").ButtonInteraction|import("discord.js").AnySelectMenuInteraction|import("discord.js").ModalSubmitInteraction} interactionOrMessage 
    * @param {string[]} [args] - Position arguments for message commands.
    * @param {Object[]} [optionsList] - Declared command options list.
    */
   constructor(interactionOrMessage, args = [], optionsList = []) {
     this.raw = interactionOrMessage;
     this.client = interactionOrMessage.client;
+    
+    // Check if context is a Command (Prefix message or Slash ChatInput/ContextMenu)
     this.isInteraction = interactionOrMessage.isCommand?.() ?? false;
-    this.isSlash = this.isInteraction; // Convenience helper
+    this.isSlash = this.isInteraction; // Command trigger helper
     this.type = this.isInteraction ? "slash" : "prefix";
 
     this.guild = interactionOrMessage.guild;
     this.channel = interactionOrMessage.channel;
+    
+    // User who triggered this specific execution context
     this.user = this.isInteraction ? interactionOrMessage.user : interactionOrMessage.author;
     this.member = this.isInteraction ? interactionOrMessage.member : interactionOrMessage.member;
 
@@ -25,11 +29,30 @@ export default class CommandContext {
       ? interactionOrMessage.options
       : new MessageOptionResolver(interactionOrMessage, args, optionsList);
 
-    // Keep track of the response message for prefix command edits
+    // Response message track for prefix command edits
     this.replyMessage = null;
 
-    // Expose interaction metadata of the parent message if it exists (helps buttons/select menus check parent commands)
+    // Expose interaction metadata of the parent message if it exists
     this.messageInteraction = !this.isInteraction ? (interactionOrMessage.interaction || null) : null;
+
+    // --- Dynamic Command Author (Session Ownership Tracker) ---
+    // Exposes the original user who created the command instance
+    if (interactionOrMessage.message) {
+      const msg = interactionOrMessage.message;
+      if (msg.interaction) {
+        // Created by a Slash Command interaction
+        this.author = msg.interaction.user;
+      } else if (msg.referencedMessage) {
+        // Created by a Prefix Command message reply
+        this.author = msg.referencedMessage.author;
+      } else {
+        // Fallback: search for first user mention in the message
+        this.author = msg.mentions.users.first() || null;
+      }
+    } else {
+      // If it is the command itself, the author is the one executing it
+      this.author = this.user;
+    }
   }
 
   /**
@@ -61,6 +84,8 @@ export default class CommandContext {
    */
   async defer(ephemeral = false) {
     if (this.isInteraction) {
+      // Check if already deferred or replied
+      if (this.raw.deferred || this.raw.replied) return;
       return await this.raw.deferReply({ ephemeral });
     } else {
       if (this.channel && typeof this.channel.sendTyping === "function") {

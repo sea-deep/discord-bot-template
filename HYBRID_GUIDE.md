@@ -12,6 +12,17 @@ All hybrid commands must be placed in:
 
 ---
 
+## ⚡ Auto-Deferring (Thinking / Loading)
+By default, **every HybridCommand is deferred automatically** before your `run` logic starts:
+- **Slash Commands**: Triggers `deferReply` (giving you a safe 15-minute window for executions instead of the 3-second gateway timeout).
+- **Prefix Commands**: Automatically triggers `channel.sendTyping()` to show the typing indicator.
+
+You can configure this behavior inside the constructor options:
+- `defer`: Set to `false` if you want to respond instantly (no thinking state).
+- `ephemeral`: Set to `true` to make the auto-deferred slash command reply visible only to the command sender.
+
+---
+
 ## 🛠️ The `ctx` (CommandContext) Object
 Every hybrid command receives a unified `ctx` object in its `run` method:
 
@@ -24,12 +35,13 @@ Every hybrid command receives a unified `ctx` object in its `run` method:
 - `ctx.user`: The User object (author of the interaction or message).
 - `ctx.member`: The GuildMember object (if inside a server).
 - `ctx.raw`: The raw `Message` or `ChatInputCommandInteraction` object.
-- `ctx.messageInteraction`: The parent interaction details (if the message trigger was spawned by a slash command). Helpful for checking ownership in button/select menu handlers.
+- `ctx.messageInteraction`: The parent interaction details (if the message trigger was spawned by a slash command).
+- `ctx.author`: **Ownership Helper.** Instantly resolves the User who *originally started* the command instance that produced the message, working across both message replies (prefix) and interactions (slash). Highly useful for button/select menu ownership validation inside component handlers!
 
 ### Normalised Methods
 All methods return standard Discord.js message objects and handle internal async flows:
-- `await ctx.defer(ephemeral)`: Defers the slash response (within 3s window) OR starts the typing indicator (`channel.sendTyping()`) for prefix commands to indicate the bot is processing.
-- `await ctx.reply(payload)`: Sends an initial reply. Payload can be a string or a message options object. For prefix commands, this automatically tracks the response so subsequent updates edit the same reply.
+- `await ctx.defer(ephemeral)`: Manually triggers deferReply or typing animation (only needed if `defer: false` was set on the command).
+- `await ctx.reply(payload)`: Normalizes replies (content string or options object). If the command has been auto-deferred, this automatically edits the "thinking" message.
 - `await ctx.editReply(payload)`: Normalizes editing the reply.
 - `await ctx.followUp(payload)`: Normalizes sending a separate secondary message to the channel.
 
@@ -38,7 +50,7 @@ All methods return standard Discord.js message objects and handle internal async
 ## 🏷️ Resolving Options (`ctx.options`)
 The options resolver normalizes text arguments (`args`) to match the standard `interaction.options` API:
 
-- `ctx.options.getString(name)`: Resolves a string. If it is the **last** option in the list, it automatically joins all remaining trailing arguments (e.g. `d!say hello world` resolves `query` option to `"hello world"` instead of `"hello"`).
+- `ctx.options.getString(name)`: Resolves a string. If it is the **last** option in the list, it automatically joins all remaining trailing arguments (e.g. `d!say hello world` resolves `text` option to `"hello world"` instead of `"hello"`).
 - `ctx.options.getInteger(name)` / `ctx.options.getNumber(name)`: Resolves and parses numbers.
 - `ctx.options.getBoolean(name)`: Resolves text inputs like `true`, `yes`, `y`, `1` as `true`.
 - `ctx.options.getUser(name)` / `ctx.options.getMember(name)`: Resolves mentioned tags (`<@ID>`), raw IDs, or username match.
@@ -60,9 +72,9 @@ import HybridCommand from "../../structures/HybridCommand.js";
 export default new HybridCommand({
   name: "say",
   description: "Make the bot repeat a message.",
-  aliases: ["echo", "repeat"],              // Prefix command aliases
-  usage: "<channel> <text>",                // Prefix help usage helper
-  options: [                                // Shared command options configuration
+  aliases: ["echo", "repeat"],
+  usage: "<channel> <text>",
+  options: [
     {
       name: "channel",
       description: "Channel to send the message in",
@@ -78,6 +90,7 @@ export default new HybridCommand({
   ],
   cooldown: 5000,
   guildOnly: true,
+  ephemeral: true, // auto-deferred slash reply will be ephemeral
   permissions: {
     bot: ["SendMessages"],
     user: ["ManageMessages"],
@@ -94,12 +107,11 @@ export default new HybridCommand({
       });
     }
 
-    await ctx.defer(true); // normalizes typing indicator / defer reply
-
     await channel.send({ content: text });
 
-    await ctx.editReply({
-      content: `✅ Successfully sent message to ${channel}!`,
+    // With auto-defer enabled, ctx.reply maps to editReply automatically
+    await ctx.reply({
+      content: `... Sent!`,
       ephemeral: true,
     });
   },
