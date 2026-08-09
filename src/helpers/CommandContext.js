@@ -13,10 +13,10 @@ export default class CommandContext {
     this.raw = interactionOrMessage;
     this.client = interactionOrMessage.client;
     
-    // Check if context is an Interaction (isInteraction returns true for all interactions in v14)
-    const isAnyInteraction = interactionOrMessage.isInteraction?.() ?? false;
+    // Check if context is an Interaction (Interactions contain a 'user' property, Messages do not)
+    const isAnyInteraction = "user" in interactionOrMessage;
     this.isInteraction = isAnyInteraction;
-    this.isSlash = interactionOrMessage.isCommand?.() ?? false;
+    this.isSlash = typeof interactionOrMessage.isCommand === "function" && interactionOrMessage.isCommand();
     this.type = this.isSlash ? "slash" : (isAnyInteraction ? "component" : "prefix");
 
     this.guild = interactionOrMessage.guild;
