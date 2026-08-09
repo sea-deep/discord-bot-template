@@ -13,19 +13,20 @@ export default class CommandContext {
     this.raw = interactionOrMessage;
     this.client = interactionOrMessage.client;
     
-    // Check if context is a Command (Prefix message or Slash ChatInput/ContextMenu)
-    this.isInteraction = interactionOrMessage.isCommand?.() ?? false;
-    this.isSlash = this.isInteraction; // Command trigger helper
-    this.type = this.isInteraction ? "slash" : "prefix";
+    // Check if context is an Interaction (isInteraction returns true for all interactions in v14)
+    const isAnyInteraction = interactionOrMessage.isInteraction?.() ?? false;
+    this.isInteraction = isAnyInteraction;
+    this.isSlash = interactionOrMessage.isCommand?.() ?? false;
+    this.type = this.isSlash ? "slash" : (isAnyInteraction ? "component" : "prefix");
 
     this.guild = interactionOrMessage.guild;
     this.channel = interactionOrMessage.channel;
     
     // User who triggered this specific execution context (clicked the button or ran the command)
-    this.user = this.isInteraction ? interactionOrMessage.user : interactionOrMessage.author;
-    this.member = this.isInteraction ? interactionOrMessage.member : interactionOrMessage.member;
+    this.user = isAnyInteraction ? interactionOrMessage.user : interactionOrMessage.author;
+    this.member = isAnyInteraction ? interactionOrMessage.member : interactionOrMessage.member;
 
-    this.options = this.isInteraction
+    this.options = this.isSlash
       ? interactionOrMessage.options
       : new MessageOptionResolver(interactionOrMessage, args, optionsList);
 
@@ -33,7 +34,7 @@ export default class CommandContext {
     this.replyMessage = null;
 
     // Expose interaction metadata of the parent message if it exists
-    this.messageInteraction = !this.isInteraction ? (interactionOrMessage.interaction || null) : null;
+    this.messageInteraction = !this.isSlash ? (interactionOrMessage.interaction || null) : null;
 
     // --- Dynamic Command Author (Session Ownership Tracker) ---
     // Exposes the original user who created the command instance
@@ -60,12 +61,19 @@ export default class CommandContext {
    * @param {string|Object} options - Reply payload string or payload options object.
    */
   async reply(options) {
-    const payload = typeof options === "string" ? { content: options } : options;
+    const payload = typeof options === "string" ? { content: options } : { ...options };
 
     if (this.isInteraction) {
       if (this.raw.replied || this.raw.deferred) {
         return await this.raw.editReply(payload);
       }
+
+      // Supplying "ephemeral" is deprecated in v14.16+, map to flags instead
+      if (payload.ephemeral) {
+        payload.flags = 64; // MessageFlags.Ephemeral
+        delete payload.ephemeral;
+      }
+
       return await this.raw.reply(payload);
     } else {
       if (this.replyMessage) {
@@ -86,7 +94,9 @@ export default class CommandContext {
     if (this.isInteraction) {
       // Check if already deferred or replied
       if (this.raw.deferred || this.raw.replied) return;
-      return await this.raw.deferReply({ ephemeral });
+      return await this.raw.deferReply({
+        flags: ephemeral ? 64 : undefined // Use flags instead of ephemeral option
+      });
     } else {
       if (this.channel && typeof this.channel.sendTyping === "function") {
         try {
@@ -111,9 +121,13 @@ export default class CommandContext {
    * @param {string|Object} options 
    */
   async followUp(options) {
-    const payload = typeof options === "string" ? { content: options } : options;
+    const payload = typeof options === "string" ? { content: options } : { ...options };
 
     if (this.isInteraction) {
+      if (payload.ephemeral) {
+        payload.flags = 64; // MessageFlags.Ephemeral
+        delete payload.ephemeral;
+      }
       return await this.raw.followUp(payload);
     } else {
       return await this.channel.send(payload);

@@ -21,6 +21,7 @@ export default class SlashCommand {
 
     const commandName = typeof data.data.setName === "function" ? data.data.name : data.data.name;
 
+    this.name = commandName;
     this.data = typeof data.data.toJSON === "function" ? data.data.toJSON() : data.data;
     this.options = data.options || {};
     this.execute = data.execute || null;
