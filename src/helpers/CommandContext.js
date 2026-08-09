@@ -21,7 +21,7 @@ export default class CommandContext {
     this.guild = interactionOrMessage.guild;
     this.channel = interactionOrMessage.channel;
     
-    // User who triggered this specific execution context
+    // User who triggered this specific execution context (clicked the button or ran the command)
     this.user = this.isInteraction ? interactionOrMessage.user : interactionOrMessage.author;
     this.member = this.isInteraction ? interactionOrMessage.member : interactionOrMessage.member;
 
@@ -41,17 +41,17 @@ export default class CommandContext {
       const msg = interactionOrMessage.message;
       if (msg.interaction) {
         // Created by a Slash Command interaction
-        this.author = msg.interaction.user;
+        this.originalAuthor = msg.interaction.user;
       } else if (msg.referencedMessage) {
         // Created by a Prefix Command message reply
-        this.author = msg.referencedMessage.author;
+        this.originalAuthor = msg.referencedMessage.author;
       } else {
         // Fallback: search for first user mention in the message
-        this.author = msg.mentions.users.first() || null;
+        this.originalAuthor = msg.mentions.users.first() || null;
       }
     } else {
-      // If it is the command itself, the author is the one executing it
-      this.author = this.user;
+      // If it is the command itself, the original author is the one executing it
+      this.originalAuthor = this.user;
     }
   }
 

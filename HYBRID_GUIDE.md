@@ -32,11 +32,11 @@ Every hybrid command receives a unified `ctx` object in its `run` method:
 - `ctx.isSlash`: A boolean convenience flag (`true` if Slash command).
 - `ctx.guild`: The Guild object (if inside a server).
 - `ctx.channel`: The text channel object.
-- `ctx.user`: The User object (author of the interaction or message).
-- `ctx.member`: The GuildMember object (if inside a server).
+- `ctx.user`: The User object executing the trigger (the user currently running the command or clicking the button).
+- `ctx.member`: The GuildMember object for the executing user.
 - `ctx.raw`: The raw `Message` or `ChatInputCommandInteraction` object.
 - `ctx.messageInteraction`: The parent interaction details (if the message trigger was spawned by a slash command).
-- `ctx.author`: **Ownership Helper.** Instantly resolves the User who *originally started* the command instance that produced the message, working across both message replies (prefix) and interactions (slash). Highly useful for button/select menu ownership validation inside component handlers!
+- `ctx.originalAuthor`: **Ownership Helper.** Instantly resolves the User who *originally started* the command instance that produced this message. Works reliably across both message replies (prefix) and interactions (slash). Highly useful for button/select menu ownership validation inside component handlers!
 
 ### Normalised Methods
 All methods return standard Discord.js message objects and handle internal async flows:
