@@ -21,19 +21,19 @@ async function loadSelectMenus(): Promise<void> {
 
       switch (component.type) {
         case "stringSelect":
-          (client as any).stringSelectMenus.set(component.customId, component);
+          client.stringSelectMenus.set(component.customId, component);
           break;
         case "userSelect":
-          (client as any).userSelectMenus.set(component.customId, component);
+          client.userSelectMenus.set(component.customId, component);
           break;
         case "roleSelect":
-          (client as any).roleSelectMenus.set(component.customId, component);
+          client.roleSelectMenus.set(component.customId, component);
           break;
         case "mentionableSelect":
-          (client as any).mentionableSelectMenus.set(component.customId, component);
+          client.mentionableSelectMenus.set(component.customId, component);
           break;
         case "channelSelect":
-          (client as any).channelSelectMenus.set(component.customId, component);
+          client.channelSelectMenus.set(component.customId, component);
           break;
         default:
           Logger.warn(`Unknown select menu type '${component.type}' in file: ${file}`);
@@ -41,11 +41,11 @@ async function loadSelectMenus(): Promise<void> {
       }
     }
     const total = 
-      (client as any).stringSelectMenus.size + 
-      (client as any).userSelectMenus.size + 
-      (client as any).roleSelectMenus.size + 
-      (client as any).mentionableSelectMenus.size + 
-      (client as any).channelSelectMenus.size;
+      client.stringSelectMenus.size + 
+      client.userSelectMenus.size + 
+      client.roleSelectMenus.size + 
+      client.mentionableSelectMenus.size + 
+      client.channelSelectMenus.size;
 
     Logger.success(`Loaded ${total} Select Menu Components!`);
   } catch (err) {

@@ -18,10 +18,10 @@ async function loadButtons(): Promise<void> {
       const component = module.default;
 
       if (component && component.customId) {
-        (client as any).buttons.set(component.customId, component);
+        client.buttons.set(component.customId, component);
       }
     }
-    Logger.success(`Loaded ${(client as any).buttons.size} Button Components!`);
+    Logger.success(`Loaded ${client.buttons.size} Button Components!`);
   } catch (err) {
     Logger.error("Error loading Button Components:", err);
   }

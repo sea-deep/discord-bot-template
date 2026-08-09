@@ -1,4 +1,4 @@
-import { Client, PermissionResolvable } from "discord.js";
+import { Client, PermissionResolvable, ApplicationCommandOptionData, ChatInputApplicationCommandData, Message, RepliableInteraction } from "discord.js";
 import CommandContext from "../helpers/CommandContext.js";
 import MessageOptionResolver from "../helpers/MessageOptionResolver.js";
 import config from "../../Configs/config.js";
@@ -20,7 +20,7 @@ export interface HybridCommandData {
   /** Example usage strings (without leading prefixes). */
   examples?: string[];
   /** Slash and prefix positional options block. */
-  options?: any[];
+  options?: ApplicationCommandOptionData[];
   /** Command cooldown in milliseconds. */
   cooldown?: number;
   /** Enforce command execution inside servers only. */
@@ -41,7 +41,7 @@ export interface HybridCommandData {
     user?: PermissionResolvable[];
   };
   /** Consolidated execution callback block. */
-  execute: (ctx: CommandContext, client: Client) => any;
+  execute: (ctx: CommandContext, client: Client) => Promise<unknown> | unknown;
 }
 
 /**
@@ -54,7 +54,7 @@ export default class HybridCommand {
   public aliases: string[];
   public usage: string;
   public examples: string[];
-  public options: any[];
+  public options: ApplicationCommandOptionData[];
   public cooldown: number;
   public guildOnly: boolean;
   public nsfw: boolean;
@@ -66,13 +66,9 @@ export default class HybridCommand {
     bot: PermissionResolvable[];
     user: PermissionResolvable[];
   };
-  public run: (ctx: CommandContext, client: Client) => any;
-  public data: {
-    name: string;
-    description: string;
-    options: any[];
-  };
-  public execute: (interactionOrMessage: any, ...argsOrClient: any[]) => Promise<any>;
+  public run: (ctx: CommandContext, client: Client) => Promise<unknown> | unknown;
+  public data: ChatInputApplicationCommandData;
+  public execute: (interactionOrMessage: Message | RepliableInteraction, ...argsOrClient: any[]) => Promise<any>;
   public commandType: "hybrid" = "hybrid";
 
   /**
@@ -119,12 +115,12 @@ export default class HybridCommand {
     };
 
     // Under-the-hood standard dispatcher matching legacy handlers expectations
-    this.execute = async (interactionOrMessage: any, ...argsOrClient: any[]): Promise<any> => {
-      const isInteraction = interactionOrMessage.isCommand?.() ?? false;
+    this.execute = async (interactionOrMessage: Message | RepliableInteraction, ...argsOrClient: any[]): Promise<any> => {
+      const isInteraction = (interactionOrMessage as any).isCommand?.() ?? false;
 
       if (isInteraction) {
-        const client = argsOrClient[0];
-        const ctx = new CommandContext(interactionOrMessage, [], this.options);
+        const client = argsOrClient[0] as Client;
+        const ctx = new CommandContext(interactionOrMessage as RepliableInteraction, [], this.options);
 
         // Auto-defer if configured
         if (this.defer) {
@@ -133,24 +129,26 @@ export default class HybridCommand {
 
         return await this.run(ctx, client);
       } else {
-        const args = argsOrClient[0] || [];
-        const client = argsOrClient[1];
+        const args = (argsOrClient[0] || []) as string[];
+        const client = argsOrClient[1] as Client;
+        const message = interactionOrMessage as Message;
 
         // Automatic required argument validation for prefix command flow
-        const resolver = new MessageOptionResolver(interactionOrMessage, args, this.options);
+        const resolver = new MessageOptionResolver(message, args, this.options);
         for (const opt of this.options) {
-          if (opt.required) {
+          const isRequired = (opt as any).required;
+          if (isRequired) {
             const resolvedValue = resolver.resolved[opt.name];
             if (resolvedValue === undefined || resolvedValue === null) {
               const prefix = config.commands.prefix;
-              return await interactionOrMessage.reply({
+              return await message.reply({
                 content: `❌ **Missing required argument:** \`${opt.name}\`\nUsage: \`${prefix}${this.name} ${this.usage || ""}\``,
               });
             }
           }
         }
 
-        const ctx = new CommandContext(interactionOrMessage, args, this.options);
+        const ctx = new CommandContext(message, args, this.options);
 
         // Auto-defer if configured
         if (this.defer) {

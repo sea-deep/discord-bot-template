@@ -1,4 +1,14 @@
-import { Message, Client, User, GuildMember, Role, GuildChannel, Attachment, ApplicationCommandOptionType } from "discord.js";
+import { 
+  Message, 
+  Client, 
+  User, 
+  GuildMember, 
+  Role, 
+  GuildChannel, 
+  Attachment, 
+  ApplicationCommandOptionType, 
+  ApplicationCommandOptionData 
+} from "discord.js";
 
 /**
  * Normalizes text-based prefix command arguments so they mirror
@@ -8,7 +18,7 @@ export default class MessageOptionResolver {
   public message: Message;
   public args: string[];
   public client: Client;
-  public optionsList: any[];
+  public optionsList: ApplicationCommandOptionData[];
   public resolved: Record<string, string> = {};
   public subcommand: string | null = null;
   public subcommandGroup: string | null = null;
@@ -18,7 +28,7 @@ export default class MessageOptionResolver {
    * @param args - Positional string arguments parsed from the message.
    * @param optionsList - Registered options block configuration list.
    */
-  constructor(message: Message, args: string[], optionsList?: any[]) {
+  constructor(message: Message, args: string[], optionsList?: ApplicationCommandOptionData[]) {
     this.message = message;
     this.args = args;
     this.client = message.client;

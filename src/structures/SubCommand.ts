@@ -1,4 +1,4 @@
-import { ChatInputCommandInteraction, Client } from "discord.js";
+import { ChatInputCommandInteraction, Client, ApplicationCommandOptionData } from "discord.js";
 
 /**
  * Interface definition for configuration options of Subcommands.
@@ -9,7 +9,7 @@ export interface SubCommandData {
   /** Subcommand description (used for dynamically building documentation). */
   description?: string;
   /** Command positional options (used for dynamically building documentation). */
-  options?: any[];
+  options?: ApplicationCommandOptionData[];
   /** Subcommand execution callback. */
   execute: (interaction: ChatInputCommandInteraction, client: Client) => any;
 }
@@ -20,7 +20,7 @@ export interface SubCommandData {
 export default class SubCommand {
   public subCommand: string;
   public description: string;
-  public options: any[];
+  public options: ApplicationCommandOptionData[];
   public execute: (interaction: ChatInputCommandInteraction, client: Client) => any;
 
   /**

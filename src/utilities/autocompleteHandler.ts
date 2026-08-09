@@ -18,10 +18,10 @@ async function loadAutocompletes(): Promise<void> {
       const component = module.default;
 
       if (component && component.name) {
-        (client as any).autocompletes.set(component.name, component);
+        client.autocompletes.set(component.name, component);
       }
     }
-    Logger.success(`Loaded ${(client as any).autocompletes.size} Autocomplete Components!`);
+    Logger.success(`Loaded ${client.autocompletes.size} Autocomplete Components!`);
   } catch (err) {
     Logger.error("Error loading Autocomplete Components:", err);
   }

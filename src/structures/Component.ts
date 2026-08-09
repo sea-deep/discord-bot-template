@@ -1,4 +1,6 @@
-import { Client } from "discord.js";
+import { Client, ButtonInteraction, AnySelectMenuInteraction, ModalSubmitInteraction } from "discord.js";
+
+export type ComponentInteraction = ButtonInteraction | AnySelectMenuInteraction | ModalSubmitInteraction;
 
 /**
  * Interface definition for component interactions (Buttons, Modals, Select Menus).
@@ -16,7 +18,7 @@ export interface ComponentData {
     ownerOnly?: boolean;
   };
   /** Execution callback block. */
-  execute: (interaction: any, client: Client, ...params: string[]) => any;
+  execute: (interaction: ComponentInteraction | any, client: Client, ...params: string[]) => any;
 }
 
 /**
@@ -29,7 +31,7 @@ export default class Component {
     public: boolean;
     ownerOnly: boolean;
   };
-  public execute: (interaction: any, client: Client, ...params: string[]) => any;
+  public execute: (interaction: ComponentInteraction | any, client: Client, ...params: string[]) => any;
 
   /**
    * @param data - Config parameters.

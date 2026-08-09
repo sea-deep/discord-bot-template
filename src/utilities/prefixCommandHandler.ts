@@ -27,10 +27,10 @@ async function loadPrefixCommands(): Promise<void> {
           command.category = command.category.toLowerCase();
         }
 
-        (client as any).prefixCommands.set(command.name, command);
+        client.prefixCommands.set(command.name, command);
       }
     }
-    Logger.success(`Loaded ${(client as any).prefixCommands.size} Prefix Commands!`);
+    Logger.success(`Loaded ${client.prefixCommands.size} Prefix Commands!`);
   } catch (err) {
     Logger.error("Error loading Message Commands:", err);
   }

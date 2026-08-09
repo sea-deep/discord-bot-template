@@ -40,7 +40,7 @@ export default new HybridCommand({
     if (!channel.permissionsFor(ctx.guild!.members.me!).has("SendMessages")) {
       return await ctx.reply({
         content: `❌ I do not have permission to send messages in ${channel}!`,
-        flags: 64,
+        flags: "Ephemeral",
       });
     }
 
@@ -48,7 +48,7 @@ export default new HybridCommand({
 
     await ctx.reply({
       content: `... Sent!`,
-      flags: 64,
+      flags: "Ephemeral",
     });
   },
 });

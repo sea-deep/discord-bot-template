@@ -1,4 +1,4 @@
-import { ChatInputCommandInteraction, Client, PermissionResolvable } from "discord.js";
+import { ChatInputCommandInteraction, Client, PermissionResolvable, ChatInputApplicationCommandData } from "discord.js";
 
 /**
  * Interface definition for configuration options of Slash commands.
@@ -30,7 +30,7 @@ export interface SlashCommandOptions {
  */
 export interface SlashCommandData {
   /** Command metadata for registration (SlashCommandBuilder, JSON structure, or Object). */
-  data: any;
+  data: ChatInputApplicationCommandData | any;
   /** Execution options. */
   options?: SlashCommandOptions;
   /** Main execution callback (interaction, client) => void (Omit if subcommands are routed dynamically). */
@@ -42,7 +42,7 @@ export interface SlashCommandData {
  */
 export default class SlashCommand {
   public name: string;
-  public data: any;
+  public data: ChatInputApplicationCommandData;
   public options: SlashCommandOptions;
   public category: string | null;
   public examples: string[];

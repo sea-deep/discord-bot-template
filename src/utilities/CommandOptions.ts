@@ -1,8 +1,23 @@
-import { PermissionsBitField, ChatInputCommandInteraction, Message } from "discord.js";
+import { PermissionsBitField, ChatInputCommandInteraction, Message, PermissionResolvable } from "discord.js";
 import config from "../../Configs/config.js";
+import MessageCommand from "../structures/MessageCommand.js";
+import SlashCommand from "../structures/SlashCommand.js";
+import HybridCommand from "../structures/HybridCommand.js";
 
 const slashCooldowns = new Map<string, Map<string, number>>();
 const messageCooldowns = new Map<string, Map<string, number>>();
+
+interface CommandSettings {
+  ownerOnly?: boolean;
+  developerOnly?: boolean;
+  guildOnly?: boolean;
+  nsfw?: boolean;
+  cooldown?: number;
+  permissions?: {
+    bot?: PermissionResolvable[];
+    user?: PermissionResolvable[];
+  };
+}
 
 /**
  * Handles options check for Slash / Application Commands.
@@ -10,8 +25,11 @@ const messageCooldowns = new Map<string, Map<string, number>>();
  * @param command - The loaded command metadata structure.
  * @returns True if checks passed, false if blocked.
  */
-export async function handleApplicationCommandOptions(interaction: ChatInputCommandInteraction, command: any): Promise<boolean> {
-  const settings = command.commandType === "hybrid" ? command : (command.options || {});
+export async function handleApplicationCommandOptions(
+  interaction: ChatInputCommandInteraction, 
+  command: SlashCommand | HybridCommand
+): Promise<boolean> {
+  const settings = (command.commandType === "hybrid" ? command : (command.options || {})) as CommandSettings;
 
   // 1. Owner Check
   if (settings.ownerOnly) {
@@ -59,8 +77,9 @@ export async function handleApplicationCommandOptions(interaction: ChatInputComm
   }
 
   // 4.5 User Permissions Check
-  if (interaction.guild && command.permissions?.user?.length > 0) {
-    const needed = PermissionsBitField.resolve(command.permissions.user);
+  const userPerms = command.permissions?.user;
+  if (interaction.guild && userPerms && userPerms.length > 0) {
+    const needed = PermissionsBitField.resolve(userPerms);
     if (!(interaction.member as any).permissions.has(needed)) {
       await interaction.reply({
         content: config.messages.MISSING_PERMISSIONS,
@@ -71,8 +90,9 @@ export async function handleApplicationCommandOptions(interaction: ChatInputComm
   }
 
   // 4.6 Bot Permissions Check
-  if (interaction.guild && command.permissions?.bot?.length > 0) {
-    const needed = PermissionsBitField.resolve(command.permissions.bot);
+  const botPerms = command.permissions?.bot;
+  if (interaction.guild && botPerms && botPerms.length > 0) {
+    const needed = PermissionsBitField.resolve(botPerms);
     if (!interaction.guild.members.me?.permissions.has(needed)) {
       await interaction.reply({
         content: "❌ The bot lacks required permissions to run this command.",
@@ -85,7 +105,7 @@ export async function handleApplicationCommandOptions(interaction: ChatInputComm
   // 5. Cooldown Check
   if (settings.cooldown) {
     const now = Date.now();
-    const commandName = command.data.name;
+    const commandName = command.name;
     const cooldownAmount = settings.cooldown;
 
     if (!slashCooldowns.has(interaction.user.id)) {
@@ -118,7 +138,10 @@ export async function handleApplicationCommandOptions(interaction: ChatInputComm
  * @param command - The loaded command metadata structure.
  * @returns True if checks passed, false if blocked.
  */
-export async function handleMessageCommandOptions(message: Message, command: any): Promise<boolean> {
+export async function handleMessageCommandOptions(
+  message: Message, 
+  command: MessageCommand | HybridCommand
+): Promise<boolean> {
   // 1. Owner Check
   if (command.ownerOnly) {
     if (message.author.id !== config.users.ownerId) {
@@ -153,8 +176,9 @@ export async function handleMessageCommandOptions(message: Message, command: any
   }
 
   // 5. User Permissions Check
-  if (message.guild && command.permissions?.user?.length > 0) {
-    const needed = PermissionsBitField.resolve(command.permissions.user);
+  const userPerms = command.permissions?.user;
+  if (message.guild && userPerms && userPerms.length > 0) {
+    const needed = PermissionsBitField.resolve(userPerms);
     if (!message.member?.permissions.has(needed)) {
       await message.reply(config.messages.MISSING_PERMISSIONS);
       return false;
@@ -162,8 +186,9 @@ export async function handleMessageCommandOptions(message: Message, command: any
   }
 
   // 6. Bot Permissions Check
-  if (message.guild && command.permissions?.bot?.length > 0) {
-    const needed = PermissionsBitField.resolve(command.permissions.bot);
+  const botPerms = command.permissions?.bot;
+  if (message.guild && botPerms && botPerms.length > 0) {
+    const needed = PermissionsBitField.resolve(botPerms);
     if (!message.guild.members.me?.permissions.has(needed)) {
       await message.reply("❌ The bot lacks required permissions to run this command.");
       return false;

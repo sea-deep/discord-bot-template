@@ -28,6 +28,7 @@ export interface ConfigSchema {
     GUILD_COOLDOWN: string;
     INTERACTION_ERROR: string;
   };
+  errorChannelId?: string;
 }
 
 const config: ConfigSchema = {
@@ -62,6 +63,7 @@ const config: ConfigSchema = {
     GUILD_COOLDOWN: "⏳ You are on cooldown. Please wait `%cooldown%s` before using this command again.",
     INTERACTION_ERROR: "❌ An error occurred while executing this interaction.",
   },
+  errorChannelId: "", // Optional error logging channel ID
 };
 
 export default config;

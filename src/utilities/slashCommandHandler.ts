@@ -4,7 +4,7 @@ import { client } from "../../index.js";
 import Logger from "../helpers/Logger.js";
 import { getLoaderPattern } from "./pathResolver.js";
 
-(client as any).slashCommandsArray = [];
+client.slashCommandsArray = [];
 
 /**
  * Dynamically registers standard application commands and subcommands.
@@ -22,7 +22,7 @@ async function loadSlashCommands(): Promise<void> {
       if (!command) continue;
 
       if (command.subCommand) {
-        (client as any).subCommands.set(command.subCommand, command);
+        client.subCommands.set(command.subCommand, command);
         continue;
       }
 
@@ -36,11 +36,11 @@ async function loadSlashCommands(): Promise<void> {
           command.category = command.category.toLowerCase();
         }
 
-        (client as any).slashCommands.set(command.data.name, command);
-        (client as any).slashCommandsArray.push(command.data);
+        client.slashCommands.set(command.data.name, command);
+        client.slashCommandsArray.push(command.data);
       }
     }
-    Logger.success(`Loaded ${(client as any).slashCommands.size} Slash Commands and ${(client as any).subCommands.size} Subcommands!`);
+    Logger.success(`Loaded ${client.slashCommands.size} Slash Commands and ${client.subCommands.size} Subcommands!`);
   } catch (err) {
     Logger.error("Error loading Slash Commands:", err);
   }

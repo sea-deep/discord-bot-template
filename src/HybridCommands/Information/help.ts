@@ -83,13 +83,12 @@ export default new HybridCommand({
       if (!targetCmd) {
         return await ctx.reply({
           content: `❌ Command or Subcommand \`${query}\` was not found.`,
-          flags: 64,
+          flags: "Ephemeral",
         });
       }
 
       const botIcon = client.user!.displayAvatarURL();
       const embed: any = {
-        type: "rich",
         color: 0xe08e67,
         author: {
           name: client.user!.username,
@@ -206,7 +205,6 @@ export default new HybridCommand({
     const currentPrefix = isSlash ? "/" : prefix;
 
     const embed = {
-      type: "rich",
       title: "General",
       description: config.messages.HELP_DESCRIPTION,
       color: 0xe08e67,

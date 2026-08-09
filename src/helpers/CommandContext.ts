@@ -6,15 +6,21 @@ import {
   GuildMember, 
   TextBasedChannel, 
   CommandInteractionOptionResolver, 
-  MessageInteraction
+  MessageInteraction,
+  RepliableInteraction,
+  InteractionReplyOptions,
+  MessageReplyOptions,
+  ApplicationCommandOptionData
 } from "discord.js";
 import MessageOptionResolver from "./MessageOptionResolver.js";
+
+export type ContextReplyOptions = string | (Omit<InteractionReplyOptions, "flags"> & Omit<MessageReplyOptions, "flags"> & { flags?: string | string[] | number; ephemeral?: boolean });
 
 /**
  * Normalizes execution contexts between Prefix (Message) and Slash (Interaction) commands.
  */
 export default class CommandContext {
-  public raw: Message | any;
+  public raw: Message | RepliableInteraction;
   public client: Client;
   public isInteraction: boolean;
   public isSlash: boolean;
@@ -33,36 +39,41 @@ export default class CommandContext {
    * @param args - Positional arguments (for prefix messages only).
    * @param optionsList - Option configuration definitions (for prefix messages only).
    */
-  constructor(interactionOrMessage: Message | any, args: string[] = [], optionsList: any[] = []) {
+  constructor(interactionOrMessage: Message | RepliableInteraction, args: string[] = [], optionsList: ApplicationCommandOptionData[] = []) {
     this.raw = interactionOrMessage;
     this.client = interactionOrMessage.client;
     
     // Check if context is an Interaction
     const isAnyInteraction = "user" in interactionOrMessage;
     this.isInteraction = isAnyInteraction;
-    this.isSlash = typeof interactionOrMessage.isCommand === "function" && interactionOrMessage.isCommand();
+    this.isSlash = typeof (interactionOrMessage as any).isCommand === "function" && (interactionOrMessage as any).isCommand();
     this.type = this.isSlash ? "slash" : (isAnyInteraction ? "component" : "prefix");
 
     this.guild = interactionOrMessage.guild;
     this.channel = interactionOrMessage.channel;
     
     // User who triggered this specific execution context
-    this.user = isAnyInteraction ? interactionOrMessage.user : interactionOrMessage.author;
-    this.member = isAnyInteraction ? (interactionOrMessage.member as GuildMember) : (interactionOrMessage.member as GuildMember);
+    this.user = isAnyInteraction ? (interactionOrMessage as RepliableInteraction).user : (interactionOrMessage as Message).author;
+    this.member = interactionOrMessage.member as GuildMember | null;
 
     this.options = this.isSlash
-      ? (interactionOrMessage.options as CommandInteractionOptionResolver)
-      : new MessageOptionResolver(interactionOrMessage, args, optionsList);
+      ? ((interactionOrMessage as any).options as CommandInteractionOptionResolver)
+      : new MessageOptionResolver(interactionOrMessage as Message, args, optionsList);
 
     // Expose interaction metadata of the parent message if it exists
-    this.messageInteraction = !this.isSlash ? (interactionOrMessage.interaction || null) : null;
+    this.messageInteraction = !this.isSlash ? ((interactionOrMessage as Message).interaction || null) : null;
 
     // --- Dynamic Command Author (Session Ownership Tracker) ---
-    if (interactionOrMessage.message) {
-      const msg = interactionOrMessage.message;
+    if ("message" in interactionOrMessage && (interactionOrMessage as any).message) {
+      const msg = (interactionOrMessage as any).message as Message;
+      
+      // Safe resolve of referenced message author
+      const refMsgId = msg.reference?.messageId;
+      const refMsg = refMsgId ? msg.channel.messages.cache.get(refMsgId) : null;
+
       this.originalAuthor = 
         msg.interaction?.user || 
-        msg.referencedMessage?.author || 
+        refMsg?.author || 
         msg.mentions?.users?.first() || 
         this.user;
     } else {
@@ -75,26 +86,28 @@ export default class CommandContext {
    * Handles editing the defer/thinking state automatically if previously deferred.
    * @param options - Text payload or full MessageOptions object.
    */
-  async reply(options: string | any): Promise<Message | any> {
-    const payload = typeof options === "string" ? { content: options } : { ...options };
+  async reply(options: ContextReplyOptions): Promise<any> {
+    const payload: any = typeof options === "string" ? { content: options } : { ...options };
 
     if (this.isInteraction) {
-      if (this.raw.replied || this.raw.deferred) {
-        return await this.raw.editReply(payload);
+      const rawInteraction = this.raw as RepliableInteraction;
+      if (rawInteraction.replied || rawInteraction.deferred) {
+        return await rawInteraction.editReply(payload);
       }
 
       // Supplying "ephemeral" is deprecated in v14.16+, map to flags instead
       if (payload.ephemeral) {
-        payload.flags = 64; // MessageFlags.Ephemeral
+        payload.flags = "Ephemeral";
         delete payload.ephemeral;
       }
 
-      return await this.raw.reply(payload);
+      return await rawInteraction.reply(payload);
     } else {
+      const rawMessage = this.raw as Message;
       if (this.replyMessage) {
         return await this.replyMessage.edit(payload);
       }
-      this.replyMessage = await this.raw.reply(payload);
+      this.replyMessage = await rawMessage.reply(payload);
       return this.replyMessage;
     }
   }
@@ -107,9 +120,10 @@ export default class CommandContext {
    */
   async defer(ephemeral = false): Promise<any> {
     if (this.isInteraction) {
-      if (this.raw.deferred || this.raw.replied) return;
-      return await this.raw.deferReply({
-        flags: ephemeral ? 64 : undefined // Use flags instead of ephemeral option
+      const rawInteraction = this.raw as RepliableInteraction;
+      if (rawInteraction.deferred || rawInteraction.replied) return;
+      return await rawInteraction.deferReply({
+        flags: ephemeral ? "Ephemeral" as any : undefined
       });
     } else {
       if (this.channel && typeof (this.channel as any).sendTyping === "function") {
@@ -126,7 +140,7 @@ export default class CommandContext {
    * Normalize editing a reply message.
    * @param options - Text payload or full MessageOptions object.
    */
-  async editReply(options: string | any): Promise<Message | any> {
+  async editReply(options: ContextReplyOptions): Promise<any> {
     return await this.reply(options);
   }
 
@@ -134,15 +148,16 @@ export default class CommandContext {
    * Normalize sending follow-up messages.
    * @param options - Text payload or full MessageOptions object.
    */
-  async followUp(options: string | any): Promise<Message | any> {
-    const payload = typeof options === "string" ? { content: options } : { ...options };
+  async followUp(options: ContextReplyOptions): Promise<any> {
+    const payload: any = typeof options === "string" ? { content: options } : { ...options };
 
     if (this.isInteraction) {
+      const rawInteraction = this.raw as RepliableInteraction;
       if (payload.ephemeral) {
-        payload.flags = 64; // MessageFlags.Ephemeral
+        payload.flags = "Ephemeral";
         delete payload.ephemeral;
       }
-      return await this.raw.followUp(payload);
+      return await rawInteraction.followUp(payload);
     } else {
       if (!this.channel) {
         throw new Error("Cannot send follow-up message: channel is null.");

@@ -9,7 +9,7 @@ import Logger from "../helpers/Logger.js";
 export default async function registerCommands(client: Client): Promise<void> {
   const rest = new REST({ version: "10" }).setToken(process.env.CLIENT_TOKEN || client.token || "");
 
-  const commandData = (client as any).slashCommandsArray || [];
+  const commandData = client.slashCommandsArray || [];
 
   if (commandData.length === 0) {
     Logger.info("No Slash Commands to register.");

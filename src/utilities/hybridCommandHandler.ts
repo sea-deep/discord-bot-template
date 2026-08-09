@@ -30,19 +30,19 @@ async function loadHybridCommands(): Promise<void> {
       }
 
       // 1. Register as Prefix Command (with aliases)
-      (client as any).prefixCommands.set(command.name, command);
+      client.prefixCommands.set(command.name, command);
       if (command.aliases && Array.isArray(command.aliases)) {
         for (const alias of command.aliases) {
-          (client as any).prefixCommands.set(alias, command);
+          client.prefixCommands.set(alias, command);
         }
       }
 
       // 2. Register as Slash Command (data mapped automatically)
-      (client as any).slashCommands.set(command.name, command);
-      (client as any).slashCommandsArray.push(command.data);
+      client.slashCommands.set(command.name, command);
+      client.slashCommandsArray.push(command.data);
     }
     
-    const hybridCount = (client as any).slashCommandsArray.filter((cmd: any) => (client as any).prefixCommands.has(cmd.name)).length;
+    const hybridCount = client.slashCommandsArray.filter((cmd: any) => client.prefixCommands.has(cmd.name)).length;
     Logger.success(`Loaded ${hybridCount} Hybrid Commands!`);
   } catch (err) {
     Logger.error("Error loading Hybrid Commands:", err);
