@@ -40,18 +40,12 @@ export default class CommandContext {
     // Exposes the original user who created the command instance
     if (interactionOrMessage.message) {
       const msg = interactionOrMessage.message;
-      if (msg.interaction) {
-        // Created by a Slash Command interaction
-        this.originalAuthor = msg.interaction.user;
-      } else if (msg.referencedMessage) {
-        // Created by a Prefix Command message reply
-        this.originalAuthor = msg.referencedMessage.author;
-      } else {
-        // Fallback: search for first user mention in the message, otherwise fall back to trigger user
-        this.originalAuthor = msg.mentions.users.first() || this.user;
-      }
+      this.originalAuthor = 
+        msg.interaction?.user || 
+        msg.referencedMessage?.author || 
+        msg.mentions?.users?.first() || 
+        this.user;
     } else {
-      // If it is the command itself, the original author is the one executing it
       this.originalAuthor = this.user;
     }
   }
