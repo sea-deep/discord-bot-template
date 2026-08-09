@@ -69,19 +69,29 @@ export default new HybridCommand({
         });
       }
 
+      const botIcon = client.user.displayAvatarURL();
       const embed = {
         type: "rich",
         color: 0xe08e67,
+        author: {
+          name: `${client.user.username} - Command Documentation`,
+          icon_url: botIcon,
+        },
+        thumbnail: {
+          url: botIcon,
+        },
+        timestamp: new Date().toISOString(),
         fields: [],
       };
 
       if (isSub) {
         // Subcommand details
         const formattedPath = query.split(" ").map(w => w.toLowerCase()).join(" ");
-        embed.title = `📖 SUBCOMMAND: ${query.toUpperCase()}`;
-        embed.description = targetCmd.description || "No description provided.";
+        embed.title = `📖 Subcommand: ${query.toUpperCase()}`;
+        embed.description = `*${targetCmd.description || "No description provided."}*`;
         embed.fields.push(
-          { name: "Format", value: `\`/${formattedPath}\``, inline: true }
+          { name: "Format", value: `\`/${formattedPath}\``, inline: true },
+          { name: "Parent Command", value: `\`/${query.split(" ")[0]}\``, inline: true }
         );
 
         // Subcommand options
@@ -94,8 +104,8 @@ export default new HybridCommand({
         }
       } else {
         // Parent Command details
-        embed.title = `📖 COMMAND: ${targetCmd.name.toUpperCase()}`;
-        embed.description = targetCmd.description || "No description provided.";
+        embed.title = `📖 Command: ${targetCmd.name.toUpperCase()}`;
+        embed.description = `*${targetCmd.description || "No description provided."}*`;
         
         embed.fields.push(
           { name: "Format", value: `\`${formatCmd(targetCmd)} ${targetCmd.usage || ""}\``.trim(), inline: true },
@@ -140,7 +150,7 @@ export default new HybridCommand({
         }
       }
 
-      return await ctx.reply({ embeds: [embed], ephemeral: false });
+      return await ctx.reply({ embeds: [embed] });
     }
 
     // --- CASE 2: General Help View & Categories Select Menu ---
@@ -169,13 +179,45 @@ export default new HybridCommand({
       .map((cmd) => `🔹 \`${formatCmd(cmd)}\` - *${cmd.description || "No description provided."}*`)
       .join("\n");
 
+    const botIcon = client.user.displayAvatarURL();
+    const devsList = (config.users.developers || []).map(id => `<@${id}>`).join(", ") || "None";
+    const modeStatus = config.development?.enabled 
+      ? `🛠️ Guild Dev (ID: \`${config.development.guildId}\`)` 
+      : "🚀 Production Mode (Global)";
+
     const embed = {
       type: "rich",
-      title: `📖 HELP PANEL - General`,
-      description: formattedList || "*No commands found in this category.*",
+      title: "📖 Global Commands & Help Panel",
+      description: "Welcome to the interactive help panel! Select a category from the dropdown menu below to view specific command documentation.",
       color: 0xe08e67,
+      author: {
+        name: `${client.user.username} - Help Desk`,
+        icon_url: botIcon,
+      },
+      thumbnail: {
+        url: botIcon,
+      },
+      fields: [
+        {
+          name: "⚙️ Configuration Status",
+          value: `• **Prefix**: \`${prefix}\`\n• **Developers**: ${devsList}\n• **Environment**: ${modeStatus}`,
+          inline: false,
+        },
+        {
+          name: "💡 Command Indicators",
+          value: `• \`/command\` - Slash-only command\n• \`${prefix}command\` - Prefix-only command\n• \`Hybrid\` - Works dynamically on both Prefix & Slash`,
+          inline: false,
+        },
+        {
+          name: `📁 Category: General (${defaultCommands.length} commands)`,
+          value: formattedList || "*No commands found in this category.*",
+          inline: false,
+        }
+      ],
+      timestamp: new Date().toISOString(),
       footer: {
         text: "Select a category below to browse commands",
+        icon_url: botIcon,
       },
     };
 

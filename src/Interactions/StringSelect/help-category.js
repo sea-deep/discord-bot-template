@@ -46,14 +46,24 @@ export default new Component({
       .join("\n");
 
     const categoryTitle = selectedCategory.charAt(0).toUpperCase() + selectedCategory.slice(1);
+    const botIcon = client.user.displayAvatarURL();
 
     const embed = {
       type: "rich",
       title: `📖 HELP PANEL - ${categoryTitle}`,
       description: formattedList || "*No commands found in this category.*",
       color: 0xe08e67,
+      author: {
+        name: `${client.user.username} - Help Desk`,
+        icon_url: botIcon,
+      },
+      thumbnail: {
+        url: botIcon,
+      },
+      timestamp: new Date().toISOString(),
       footer: {
-        text: "Select a category below to browse commands",
+        text: "Use /help [command] for detailed instructions.",
+        icon_url: botIcon,
       },
     };
 
