@@ -1,17 +1,19 @@
-import { SlashCommandBuilder } from "discord.js";
 import SlashCommand from "../../structures/SlashCommand.js";
 
 export default new SlashCommand({
-  data: new SlashCommandBuilder()
-    .setName("search")
-    .setDescription("Search command with autocomplete")
-    .addStringOption((option) =>
-      option
-        .setName("query")
-        .setDescription("The search query")
-        .setAutocomplete(true)
-        .setRequired(true)
-    ),
+  data: {
+    name: "search",
+    description: "Search command with autocomplete",
+    options: [
+      {
+        type: 3, // String
+        name: "query",
+        description: "The search query",
+        autocomplete: true,
+        required: true,
+      },
+    ],
+  },
   execute: async (interaction, client) => {
     const query = interaction.options.getString("query");
     await interaction.reply({
