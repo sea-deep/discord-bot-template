@@ -22,15 +22,16 @@ export default new HybridCommand({
   ],
   cooldown: 5000,
   guildOnly: true,
+  ephemeral: true, // auto-deferred slash reply will be ephemeral
   permissions: {
     bot: ["SendMessages"],
     user: ["ManageMessages"],
   },
-  run: async (ctx, client) => {
+  execute: async (ctx, client) => {
     const channel = ctx.options.getChannel("channel");
     const text = ctx.options.getString("text");
 
-    // Check permissions
+    // Enforce send permission on target channel
     if (!channel.permissionsFor(ctx.guild.members.me).has("SendMessages")) {
       return await ctx.reply({
         content: `❌ I do not have permission to send messages in ${channel}!`,
@@ -38,12 +39,11 @@ export default new HybridCommand({
       });
     }
 
-    await ctx.defer(true);
-
     await channel.send({ content: text });
 
-    await ctx.editReply({
-      content: `✅ Successfully sent message to ${channel}!`,
+    // With auto-defer enabled, ctx.reply maps to editReply automatically
+    await ctx.reply({
+      content: `... Sent!`,
       ephemeral: true,
     });
   },

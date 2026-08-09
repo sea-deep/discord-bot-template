@@ -18,10 +18,12 @@ export default class HybridCommand {
    * @param {boolean} [data.nsfw] - If nsfw channel is required.
    * @param {boolean} [data.ownerOnly] - If only the owner can run it.
    * @param {boolean} [data.developerOnly] - If only developers can run it.
+   * @param {boolean} [data.defer] - Automate deferReply / sendTyping on start (defaults to true).
+   * @param {boolean} [data.ephemeral] - If the deferred slash reply should be ephemeral (defaults to false).
    * @param {Object} [data.permissions] - Required permissions.
    * @param {import("discord.js").PermissionResolvable[]} [data.permissions.bot] - Bot permissions.
    * @param {import("discord.js").PermissionResolvable[]} [data.permissions.user] - User permissions.
-   * @param {Function} data.run - Consolidated execution run: (ctx, client) => void
+   * @param {Function} data.execute - Consolidated execution callback: (ctx, client) => void
    */
   constructor(data) {
     if (!data.name || typeof data.name !== "string") {
@@ -30,8 +32,8 @@ export default class HybridCommand {
     if (!data.description || typeof data.description !== "string") {
       throw new Error(`HybridCommand Schema Validation (${data.name}): 'description' is required and must be a string.`);
     }
-    if (!data.run || typeof data.run !== "function") {
-      throw new Error(`HybridCommand Schema Validation (${data.name}): 'run' is required and must be a function.`);
+    if (!data.execute || typeof data.execute !== "function") {
+      throw new Error(`HybridCommand Schema Validation (${data.name}): 'execute' is required and must be a function.`);
     }
 
     this.name = data.name;
@@ -44,8 +46,12 @@ export default class HybridCommand {
     this.nsfw = data.nsfw ?? false;
     this.ownerOnly = data.ownerOnly ?? false;
     this.developerOnly = data.developerOnly ?? false;
+    this.defer = data.defer ?? true; // Defaults to true
+    this.ephemeral = data.ephemeral ?? false; // Defaults to false
     this.permissions = data.permissions || { bot: [], user: [] };
-    this.run = data.run;
+    
+    // Store the developer's execution block internally
+    this.run = data.execute;
 
     // Build standard slash command metadata structure for registerCommands.js
     this.data = {
@@ -54,13 +60,19 @@ export default class HybridCommand {
       options: this.options,
     };
 
-    // Under-the-hood standard executers matching legacy dispatch expectations
+    // Under-the-hood standard dispatcher matching legacy handlers expectations
     this.execute = async (interactionOrMessage, ...argsOrClient) => {
       const isInteraction = interactionOrMessage.isCommand?.() ?? false;
 
       if (isInteraction) {
         const client = argsOrClient[0];
         const ctx = new CommandContext(interactionOrMessage, [], this.options);
+
+        // Auto-defer if configured
+        if (this.defer) {
+          await ctx.defer(this.ephemeral);
+        }
+
         return await this.run(ctx, client);
       } else {
         const args = argsOrClient[0] || [];
@@ -81,6 +93,12 @@ export default class HybridCommand {
         }
 
         const ctx = new CommandContext(interactionOrMessage, args, this.options);
+
+        // Auto-defer if configured
+        if (this.defer) {
+          await ctx.defer(this.ephemeral);
+        }
+
         return await this.run(ctx, client);
       }
     };

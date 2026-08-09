@@ -13,7 +13,7 @@ All hybrid commands must be placed in:
 ---
 
 ## ⚡ Auto-Deferring (Thinking / Loading)
-By default, **every HybridCommand is deferred automatically** before your `run` logic starts:
+By default, **every HybridCommand is deferred automatically** before your command logic starts:
 - **Slash Commands**: Triggers `deferReply` (giving you a safe 15-minute window for executions instead of the 3-second gateway timeout).
 - **Prefix Commands**: Automatically triggers `channel.sendTyping()` to show the typing indicator.
 
@@ -24,7 +24,7 @@ You can configure this behavior inside the constructor options:
 ---
 
 ## 🛠️ The `ctx` (CommandContext) Object
-Every hybrid command receives a unified `ctx` object in its `run` method:
+Every hybrid command receives a unified `ctx` object in its `execute` method:
 
 ### Normalised Properties
 - `ctx.client`: The Discord Client instance.
@@ -95,7 +95,7 @@ export default new HybridCommand({
     bot: ["SendMessages"],
     user: ["ManageMessages"],
   },
-  run: async (ctx, client) => {
+  execute: async (ctx, client) => {
     const channel = ctx.options.getChannel("channel");
     const text = ctx.options.getString("text");
 
