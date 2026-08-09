@@ -6,7 +6,7 @@ export default new MessageCommand({
   description: "Check the bot's latency.",
   aliases: ["pong", "latency"],
   guildOnly: true,
-  cooldown: 5000,
+  cooldown: 10000,
   execute: async (message: Message, args: string[], client: Client) => {
     const msg = await message.reply("Calculating latency...");
     const latency = msg.createdTimestamp - message.createdTimestamp;

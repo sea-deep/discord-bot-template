@@ -1,0 +1,13 @@
+version: '3.8'
+
+services:
+  bot:
+    build: .
+    container_name: discord-bot
+    restart: unless-stopped
+    env_file:
+      - .env
+    volumes:
+      # Optional: mount a local database or logs folder if you add one later
+      # - ./data:/usr/src/app/data
+      - /etc/localtime:/etc/localtime:ro # Sync container time with host

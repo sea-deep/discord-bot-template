@@ -1,4 +1,4 @@
-import "dotenv/config";
+import { env } from "./src/utilities/env.js";
 import { Client, GatewayIntentBits, Partials, Collection } from "discord.js";
 import Logger from "./src/helpers/Logger.js";
 
@@ -72,7 +72,7 @@ client.connect = async (): Promise<void> => {
     // Deploy / register application commands
     await import("./src/utilities/registerCommands.js");
 
-    await client.login(process.env.CLIENT_TOKEN);
+    await client.login(env.CLIENT_TOKEN);
   } catch (err) {
     Logger.error("Failed to connect or load handlers:", err);
     process.exit(1);

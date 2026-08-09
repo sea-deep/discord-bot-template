@@ -23,7 +23,8 @@
     "colors": "^1.4.0",
     "discord.js": "^14.16.3",
     "dotenv": "^16.4.5",
-    "glob": "^11.0.0"
+    "glob": "^11.0.0",
+    "zod": "^4.4.3"
   },
   "devDependencies": {
     "@types/node": "^26.2.0",
