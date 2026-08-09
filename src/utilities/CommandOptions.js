@@ -58,6 +58,30 @@ export async function handleApplicationCommandOptions(interaction, command) {
     }
   }
 
+  // 4.5 User Permissions Check
+  if (interaction.guild && command.permissions?.user?.length > 0) {
+    const needed = PermissionsBitField.resolve(command.permissions.user);
+    if (!interaction.member.permissions.has(needed)) {
+      await interaction.reply({
+        content: config.messages.MISSING_PERMISSIONS,
+        ephemeral: true,
+      });
+      return false;
+    }
+  }
+
+  // 4.6 Bot Permissions Check
+  if (interaction.guild && command.permissions?.bot?.length > 0) {
+    const needed = PermissionsBitField.resolve(command.permissions.bot);
+    if (!interaction.guild.members.me.permissions.has(needed)) {
+      await interaction.reply({
+        content: "❌ The bot lacks required permissions to run this command.",
+        ephemeral: true,
+      });
+      return false;
+    }
+  }
+
   // 5. Cooldown Check
   if (options.cooldown) {
     const now = Date.now();

@@ -74,20 +74,16 @@ export default new HybridCommand({
         type: "rich",
         color: 0xe08e67,
         author: {
-          name: `${client.user.username} - Command Documentation`,
+          name: client.user.username,
           icon_url: botIcon,
         },
-        thumbnail: {
-          url: botIcon,
-        },
-        timestamp: new Date().toISOString(),
         fields: [],
       };
 
       if (isSub) {
         // Subcommand details
         const formattedPath = query.split(" ").map(w => w.toLowerCase()).join(" ");
-        embed.title = `📖 Subcommand: ${query.toUpperCase()}`;
+        embed.title = query.toUpperCase();
         embed.description = `*${targetCmd.description || "No description provided."}*`;
         embed.fields.push(
           { name: "Format", value: `\`/${formattedPath}\``, inline: true },
@@ -104,7 +100,7 @@ export default new HybridCommand({
         }
       } else {
         // Parent Command details
-        embed.title = `📖 Command: ${targetCmd.name.toUpperCase()}`;
+        embed.title = targetCmd.name.toUpperCase();
         embed.description = `*${targetCmd.description || "No description provided."}*`;
         
         embed.fields.push(
@@ -118,6 +114,15 @@ export default new HybridCommand({
 
         if (targetCmd.cooldown) {
           embed.fields.push({ name: "Cooldown", value: `\`${targetCmd.cooldown / 1000}s\``, inline: true });
+        }
+
+        // Programmatic Permissions Display
+        if (targetCmd.permissions?.user && targetCmd.permissions.user.length > 0) {
+          embed.fields.push({
+            name: "Required Permissions",
+            value: targetCmd.permissions.user.map(p => `\`${p}\``).join(", "),
+            inline: true,
+          });
         }
 
         // Examples formatting
@@ -180,44 +185,26 @@ export default new HybridCommand({
       .join("\n");
 
     const botIcon = client.user.displayAvatarURL();
-    const devsList = (config.users.developers || []).map(id => `<@${id}>`).join(", ") || "None";
-    const modeStatus = config.development?.enabled 
-      ? `🛠️ Guild Dev (ID: \`${config.development.guildId}\`)` 
-      : "🚀 Production Mode (Global)";
+    const currentPrefix = isSlash ? "/" : prefix;
 
     const embed = {
       type: "rich",
-      title: "📖 Global Commands & Help Panel",
-      description: "Welcome to the interactive help panel! Select a category from the dropdown menu below to view specific command documentation.",
+      title: "General",
+      description: config.messages.HELP_DESCRIPTION,
       color: 0xe08e67,
       author: {
-        name: `${client.user.username} - Help Desk`,
+        name: client.user.username,
         icon_url: botIcon,
-      },
-      thumbnail: {
-        url: botIcon,
       },
       fields: [
         {
-          name: `🤖 About ${client.user.username}`,
-          value: `• **Prefix**: \`${prefix}\`\n• **Developers**: ${devsList}\n• **Mode**: ${modeStatus}`,
-          inline: false,
-        },
-        {
-          name: "💡 Command Type Guide",
-          value: `• \`/command\` — Slash-only command\n• \`${prefix}command\` — Prefix-only command\n• \`Hybrid\` — Supported on both Prefix & Slash`,
-          inline: false,
-        },
-        {
-          name: `📁 General Commands (${defaultCommands.length})`,
+          name: "Commands",
           value: formattedList || "*No commands found in this category.*",
           inline: false,
         }
       ],
-      timestamp: new Date().toISOString(),
       footer: {
-        text: "Select a category below to browse commands",
-        icon_url: botIcon,
+        text: `Use ${currentPrefix}help [command] for detailed instructions.`,
       },
     };
 

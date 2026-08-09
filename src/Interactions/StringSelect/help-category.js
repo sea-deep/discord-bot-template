@@ -47,23 +47,26 @@ export default new Component({
 
     const categoryTitle = selectedCategory.charAt(0).toUpperCase() + selectedCategory.slice(1);
     const botIcon = client.user.displayAvatarURL();
+    const currentPrefix = isSlash ? "/" : prefix;
 
     const embed = {
       type: "rich",
-      title: `📖 HELP PANEL - ${categoryTitle}`,
-      description: formattedList || "*No commands found in this category.*",
+      title: categoryTitle,
+      description: config.messages.HELP_DESCRIPTION,
       color: 0xe08e67,
       author: {
-        name: `${client.user.username} - Help Desk`,
+        name: client.user.username,
         icon_url: botIcon,
       },
-      thumbnail: {
-        url: botIcon,
-      },
-      timestamp: new Date().toISOString(),
+      fields: [
+        {
+          name: "Commands",
+          value: formattedList || "*No commands found in this category.*",
+          inline: false,
+        }
+      ],
       footer: {
-        text: "Use /help [command] for detailed instructions.",
-        icon_url: botIcon,
+        text: `Use ${currentPrefix}help [command] for detailed instructions.`,
       },
     };
 

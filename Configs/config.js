@@ -28,5 +28,6 @@ export default {
     COMPONENT_NOT_PUBLIC: "❌ You are not allowed to interact with this component!",
     GUILD_COOLDOWN: "⏳ You are on cooldown. Please wait `%cooldown%s` before using this command again.",
     INTERACTION_ERROR: "❌ An error occurred while executing this interaction.",
+    HELP_DESCRIPTION: "Welcome to the help panel! Select a category from the select menu below to explore my commands.",
   },
 };
