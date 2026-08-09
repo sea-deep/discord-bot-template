@@ -48,11 +48,12 @@ client.connect = async () => {
     await import("./src/utilities/selectMenuHandler.js");
     await import("./src/utilities/modalHandler.js");
     await import("./src/utilities/autocompleteHandler.js");
+    await import("./src/utilities/hybridCommandHandler.js");
     
     // Deploy / register application commands
     await import("./src/utilities/registerCommands.js");
 
-    await client.login(process.env.TOKEN);
+    await client.login(process.env.TOKEN || process.env.CLIENT_TOKEN);
   } catch (err) {
     Logger.error("Failed to connect or load handlers:", err);
     process.exit(1);

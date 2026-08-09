@@ -6,6 +6,7 @@ import SubCommand from "./src/structures/SubCommand.js";
 import Component from "./src/structures/Component.js";
 import Autocomplete from "./src/structures/Autocomplete.js";
 import Event from "./src/structures/Event.js";
+import HybridCommand from "./src/structures/HybridCommand.js";
 
 async function verify() {
   console.log("----------------------------------------");
@@ -22,6 +23,7 @@ async function verify() {
     { pattern: "src/Interactions/Modals/**/*.js", expected: Component, label: "Modal Component" },
     { pattern: "src/Interactions/Autocomplete/**/*.js", expected: Autocomplete, label: "Autocomplete Component" },
     { pattern: "src/events/**/*.js", expected: Event, label: "Event Listener" },
+    { pattern: "src/HybridCommands/**/*.js", expected: HybridCommand, label: "Hybrid Command" },
   ];
 
   for (const check of checks) {
