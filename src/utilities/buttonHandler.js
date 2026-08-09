@@ -13,10 +13,9 @@ try {
 
     if (component && component.customId) {
       client.buttons.set(component.customId, component);
-      Logger.info(`Loaded Button Component: ${component.customId}`);
     }
   }
-  Logger.success("Button Components loaded successfully!");
+  Logger.success(`Loaded ${client.buttons.size} Button Components!`);
 } catch (err) {
   Logger.error("Error loading Button Components:", err);
 }

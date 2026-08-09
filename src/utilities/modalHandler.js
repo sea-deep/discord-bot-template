@@ -13,10 +13,9 @@ try {
 
     if (component && component.customId) {
       client.modals.set(component.customId, component);
-      Logger.info(`Loaded Modal Component: ${component.customId}`);
     }
   }
-  Logger.success("Modal Components loaded successfully!");
+  Logger.success(`Loaded ${client.modals.size} Modal Components!`);
 } catch (err) {
   Logger.error("Error loading Modal Components:", err);
 }

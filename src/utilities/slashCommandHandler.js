@@ -17,17 +17,15 @@ try {
 
     if (command.subCommand) {
       client.subCommands.set(command.subCommand, command);
-      Logger.info(`Loaded Subcommand: ${command.subCommand}`);
       continue;
     }
 
     if (command.data && command.data.name) {
       client.slashCommands.set(command.data.name, command);
       client.slashCommandsArray.push(command.data);
-      Logger.info(`Loaded Slash Command: ${command.data.name}`);
     }
   }
-  Logger.success("Slash Commands loaded successfully!");
+  Logger.success(`Loaded ${client.slashCommands.size} Slash Commands and ${client.subCommands.size} Subcommands!`);
 } catch (err) {
   Logger.error("Error loading Slash Commands:", err);
 }

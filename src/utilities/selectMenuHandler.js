@@ -34,10 +34,9 @@ try {
         Logger.warn(`Unknown select menu type '${component.type}' in file: ${file}`);
         continue;
     }
-
-    Logger.info(`Loaded Select Menu (${component.type}): ${component.customId}`);
   }
-  Logger.success("Select Menu Components loaded successfully!");
+  const total = client.stringSelectMenus.size + client.userSelectMenus.size + client.roleSelectMenus.size + client.mentionableSelectMenus.size + client.channelSelectMenus.size;
+  Logger.success(`Loaded ${total} Select Menu Components!`);
 } catch (err) {
   Logger.error("Error loading Select Menu Components:", err);
 }

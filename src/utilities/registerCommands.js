@@ -7,7 +7,7 @@ import Logger from "../helpers/Logger.js";
  * @param {import("discord.js").Client} client 
  */
 export default async function registerCommands(client) {
-  const rest = new REST({ version: "10" }).setToken(process.env.TOKEN || client.token);
+  const rest = new REST({ version: "10" }).setToken(process.env.CLIENT_TOKEN || client.token);
 
   const commandData = client.slashCommandsArray || [];
 

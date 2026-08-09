@@ -13,10 +13,9 @@ try {
 
     if (component && component.commandName) {
       client.autocompletes.set(component.commandName, component);
-      Logger.info(`Loaded Autocomplete Component: ${component.commandName}`);
     }
   }
-  Logger.success("Autocomplete Components loaded successfully!");
+  Logger.success(`Loaded ${client.autocompletes.size} Autocomplete Components!`);
 } catch (err) {
   Logger.error("Error loading Autocomplete Components:", err);
 }

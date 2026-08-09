@@ -13,10 +13,9 @@ try {
 
     if (command && command.name) {
       client.prefixCommands.set(command.name, command);
-      Logger.info(`Loaded Message Command: ${command.name}`);
     }
   }
-  Logger.success(`Message Commands loaded successfully!`);
+  Logger.success(`Loaded ${client.prefixCommands.size} Prefix Commands!`);
 } catch (err) {
   Logger.error("Error loading Message Commands:", err);
 }

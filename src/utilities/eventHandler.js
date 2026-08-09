@@ -28,10 +28,8 @@ try {
         Logger.error(`Error in event listener (${eventObj.event}):`, err);
       }
     });
-
-    Logger.info(`Loaded Event: ${eventObj.event}`);
   }
-  Logger.success("Events loaded successfully!");
+  Logger.success(`Loaded ${files.length} Event Listeners!`);
 } catch (err) {
   Logger.error("Error loading Events:", err);
 }
