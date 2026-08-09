@@ -36,6 +36,8 @@ export default new HybridCommand({
   execute: async (ctx, client) => {
     const prefix = config.commands.prefix;
     const isSlash = ctx.isSlash;
+    const userId = ctx.user.id;
+    const isDev = (config.users.developers || []).includes(userId) || config.users.ownerId === userId;
 
     // Helper to format command name based on type and context
     const formatCmd = (cmd) => {
@@ -46,10 +48,17 @@ export default new HybridCommand({
 
     const query = ctx.options.getString("command")?.toLowerCase().trim();
 
-    // Gather unique commands map
+    // Gather unique commands map, filtering dev/owner commands for non-devs
     const uniqueCommands = new Map();
-    client.prefixCommands.forEach((cmd) => uniqueCommands.set(cmd.name.toLowerCase(), cmd));
-    client.slashCommands.forEach((cmd) => uniqueCommands.set(cmd.data.name.toLowerCase(), cmd));
+    client.prefixCommands.forEach((cmd) => {
+      if ((cmd.developerOnly || cmd.ownerOnly) && !isDev) return;
+      uniqueCommands.set(cmd.name.toLowerCase(), cmd);
+    });
+
+    client.slashCommands.forEach((cmd) => {
+      if ((cmd.options?.developerOnly || cmd.options?.ownerOnly) && !isDev) return;
+      uniqueCommands.set(cmd.data.name.toLowerCase(), cmd);
+    });
 
     // --- CASE 1: Detailed Command/Subcommand View ---
     if (query) {
@@ -58,8 +67,16 @@ export default new HybridCommand({
 
       // Check if it's a subcommand directly (e.g. "hello world")
       if (!targetCmd && client.subCommands.has(query)) {
-        targetCmd = client.subCommands.get(query);
-        isSub = true;
+        const subCmdInstance = client.subCommands.get(query);
+        const parentName = query.split(" ")[0];
+        const parentCmd = client.slashCommands.get(parentName);
+        
+        // Hide subcommand if parent is developer/owner only and user is not a dev
+        const isParentDevOnly = parentCmd && (parentCmd.options?.developerOnly || parentCmd.options?.ownerOnly);
+        if (!(isParentDevOnly && !isDev)) {
+          targetCmd = subCmdInstance;
+          isSub = true;
+        }
       }
 
       if (!targetCmd) {

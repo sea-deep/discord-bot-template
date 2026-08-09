@@ -17,11 +17,19 @@ export default new Component({
     }
 
     const selectedCategory = interaction.values[0];
+    const userId = ctx.user.id;
+    const isDev = (config.users.developers || []).includes(userId) || config.users.ownerId === userId;
 
-    // Gather all unique commands
+    // Gather all unique commands, filtering dev/owner commands for non-devs
     const uniqueCommands = new Map();
-    client.prefixCommands.forEach((cmd) => uniqueCommands.set(cmd.name, cmd));
-    client.slashCommands.forEach((cmd) => uniqueCommands.set(cmd.name, cmd));
+    client.prefixCommands.forEach((cmd) => {
+      if ((cmd.developerOnly || cmd.ownerOnly) && !isDev) return;
+      uniqueCommands.set(cmd.name, cmd);
+    });
+    client.slashCommands.forEach((cmd) => {
+      if ((cmd.options?.developerOnly || cmd.options?.ownerOnly) && !isDev) return;
+      uniqueCommands.set(cmd.name, cmd);
+    });
 
     const prefix = config.commands.prefix;
     const isSlash = ctx.messageInteraction !== null;

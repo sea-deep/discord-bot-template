@@ -1,19 +1,34 @@
 import Autocomplete from "../../structures/Autocomplete.js";
+import config from "../../../Configs/config.js";
 
 export default new Autocomplete({
   name: "help",
   execute: async (interaction, client) => {
     const focusedValue = interaction.options.getFocused().toLowerCase();
+    const userId = interaction.user.id;
+    const isDev = (config.users.developers || []).includes(userId) || config.users.ownerId === userId;
 
     // 1. Gather all unique command and subcommand names
     const names = new Set();
 
-    // Main commands
-    client.prefixCommands.forEach((cmd) => names.add(cmd.name));
-    client.slashCommands.forEach((cmd) => names.add(cmd.data.name));
+    // Main commands (hiding dev-only commands from non-developers)
+    client.prefixCommands.forEach((cmd) => {
+      if ((cmd.developerOnly || cmd.ownerOnly) && !isDev) return;
+      names.add(cmd.name);
+    });
+
+    client.slashCommands.forEach((cmd) => {
+      if ((cmd.options?.developerOnly || cmd.options?.ownerOnly) && !isDev) return;
+      names.add(cmd.data.name);
+    });
 
     // Subcommands (format keys from client.subCommands)
-    client.subCommands.forEach((_, key) => {
+    client.subCommands.forEach((subCmd, key) => {
+      // Subcommands inherit dev status from their parent if needed, but since parent is hidden, we block matching subcommands too
+      const parentName = key.split(" ")[0];
+      const parentCmd = client.slashCommands.get(parentName);
+      if (parentCmd && (parentCmd.options?.developerOnly || parentCmd.options?.ownerOnly) && !isDev) return;
+
       names.add(key);
     });
 
