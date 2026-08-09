@@ -9,21 +9,19 @@ import Event from "./src/structures/Event.js";
 import HybridCommand from "./src/structures/HybridCommand.js";
 
 async function verify() {
-  console.log("----------------------------------------");
-  console.log("🔍 Running Metadata Schema Validation...");
-  console.log("----------------------------------------\n");
-
   let passed = true;
+  let totalVerified = 0;
+  
   const checks = [
-    { pattern: "src/PrefixCommands/**/*.js", expected: MessageCommand, label: "Message Command" },
-    { pattern: "src/Interactions/SlashCommands/SubCommands/**/*.js", expected: SubCommand, label: "Subcommand" },
-    { pattern: "src/Interactions/SlashCommands/*.js", expected: SlashCommand, label: "Slash Command" },
-    { pattern: "src/Interactions/Buttons/**/*.js", expected: Component, label: "Button Component" },
-    { pattern: "src/Interactions/*Select/**/*.js", expected: Component, label: "Select Menu Component" },
-    { pattern: "src/Interactions/Modals/**/*.js", expected: Component, label: "Modal Component" },
-    { pattern: "src/Interactions/Autocomplete/**/*.js", expected: Autocomplete, label: "Autocomplete Component" },
-    { pattern: "src/events/**/*.js", expected: Event, label: "Event Listener" },
-    { pattern: "src/HybridCommands/**/*.js", expected: HybridCommand, label: "Hybrid Command" },
+    { pattern: "src/PrefixCommands/**/*.js", expected: MessageCommand },
+    { pattern: "src/Interactions/SlashCommands/SubCommands/**/*.js", expected: SubCommand },
+    { pattern: "src/Interactions/SlashCommands/*.js", expected: SlashCommand },
+    { pattern: "src/Interactions/Buttons/**/*.js", expected: Component },
+    { pattern: "src/Interactions/*Select/**/*.js", expected: Component },
+    { pattern: "src/Interactions/Modals/**/*.js", expected: Component },
+    { pattern: "src/Interactions/Autocomplete/**/*.js", expected: Autocomplete },
+    { pattern: "src/events/**/*.js", expected: Event },
+    { pattern: "src/HybridCommands/**/*.js", expected: HybridCommand },
   ];
 
   for (const check of checks) {
@@ -46,7 +44,7 @@ async function verify() {
           continue;
         }
 
-        console.log(`✅ [OK] ${check.label}: ${file}`);
+        totalVerified++;
       } catch (err) {
         console.error(`❌ [ERROR] ${file}: Verification failed with error:\n`, err.stack || err);
         passed = false;
@@ -54,12 +52,11 @@ async function verify() {
     }
   }
 
-  console.log("\n----------------------------------------");
   if (passed) {
-    console.log("🎉 SUCCESS: All files match the metadata schemas perfectly!");
+    console.log(`🎉 SUCCESS: All ${totalVerified} files match their metadata schemas perfectly!`);
     process.exit(0);
   } else {
-    console.error("⛔ FAILURE: One or more files failed schema validation.");
+    console.error("\n⛔ FAILURE: One or more files failed schema validation.");
     process.exit(1);
   }
 }
