@@ -26,37 +26,35 @@ export default new Event({
       return { handler: null, params: [] as string[] };
     };
 
-    // 2. Chat Input (Slash) and Context Menu Commands
-    if (interaction.isChatInputCommand() || interaction.isContextMenuCommand()) {
+    // 2. Chat Input (Slash) Commands
+    if (interaction.isChatInputCommand()) {
       const command = client.slashCommands.get(interaction.commandName);
       if (!command) return;
 
       // Check option checks (cooldown, nsfw, owner, etc.)
-      const proceed = await handleApplicationCommandOptions(interaction as any, command);
+      const proceed = await handleApplicationCommandOptions(interaction, command);
       if (!proceed) return;
 
       // Handle Subcommand dynamic routing
-      if (interaction.isChatInputCommand()) {
-        const subCommandGroup = interaction.options.getSubcommandGroup(false);
-        const subCommandName = interaction.options.getSubcommand(false);
+      const subCommandGroup = interaction.options.getSubcommandGroup(false);
+      const subCommandName = interaction.options.getSubcommand(false);
 
-        if (subCommandName) {
-          // Format key: "parent subCommandName" or "parent subCommandGroup subCommandName"
-          const key = subCommandGroup 
-            ? `${interaction.commandName} ${subCommandGroup} ${subCommandName}` 
-            : `${interaction.commandName} ${subCommandName}`;
-          
-          const subCommandHandler = client.subCommands.get(key);
-          if (subCommandHandler) {
-            try {
-              return await subCommandHandler.execute(interaction, client);
-            } catch (err) {
-              Logger.error(`Error in Subcommand (${key}):`, err);
-              const errMsg = { content: config.messages.INTERACTION_ERROR, flags: 64 };
-              return interaction.replied || interaction.deferred
-                ? await interaction.followUp(errMsg)
-                : await interaction.reply(errMsg);
-            }
+      if (subCommandName) {
+        // Format key: "parent subCommandName" or "parent subCommandGroup subCommandName"
+        const key = subCommandGroup 
+          ? `${interaction.commandName} ${subCommandGroup} ${subCommandName}` 
+          : `${interaction.commandName} ${subCommandName}`;
+        
+        const subCommandHandler = client.subCommands.get(key);
+        if (subCommandHandler) {
+          try {
+            return await subCommandHandler.execute(interaction, client);
+          } catch (err) {
+            Logger.error(`Error in Subcommand (${key}):`, err);
+            const errMsg = { content: config.messages.INTERACTION_ERROR, flags: 64 };
+            return interaction.replied || interaction.deferred
+              ? await interaction.followUp(errMsg)
+              : await interaction.reply(errMsg);
           }
         }
       }
@@ -67,6 +65,48 @@ export default new Event({
           return await command.execute(interaction, client);
         } catch (err) {
           Logger.error(`Error in Slash Command (${interaction.commandName}):`, err);
+          const errMsg = { content: config.messages.INTERACTION_ERROR, flags: 64 };
+          return interaction.replied || interaction.deferred
+            ? await interaction.followUp(errMsg)
+            : await interaction.reply(errMsg);
+        }
+      }
+    }
+
+    // 2.5 User Context Menu Commands
+    if (interaction.isUserContextMenuCommand()) {
+      const command = client.userContextMenus.get(interaction.commandName);
+      if (!command) return;
+
+      const proceed = await handleApplicationCommandOptions(interaction, command);
+      if (!proceed) return;
+
+      if (command.execute) {
+        try {
+          return await command.execute(interaction, client);
+        } catch (err) {
+          Logger.error(`Error in User Context Menu (${interaction.commandName}):`, err);
+          const errMsg = { content: config.messages.INTERACTION_ERROR, flags: 64 };
+          return interaction.replied || interaction.deferred
+            ? await interaction.followUp(errMsg)
+            : await interaction.reply(errMsg);
+        }
+      }
+    }
+
+    // 2.6 Message Context Menu Commands
+    if (interaction.isMessageContextMenuCommand()) {
+      const command = client.messageContextMenus.get(interaction.commandName);
+      if (!command) return;
+
+      const proceed = await handleApplicationCommandOptions(interaction, command);
+      if (!proceed) return;
+
+      if (command.execute) {
+        try {
+          return await command.execute(interaction, client);
+        } catch (err) {
+          Logger.error(`Error in Message Context Menu (${interaction.commandName}):`, err);
           const errMsg = { content: config.messages.INTERACTION_ERROR, flags: 64 };
           return interaction.replied || interaction.deferred
             ? await interaction.followUp(errMsg)

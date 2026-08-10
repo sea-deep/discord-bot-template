@@ -8,6 +8,8 @@ declare module "discord.js" {
     prefixCommands: Collection<string, any>;
     slashCommands: Collection<string, any>;
     slashCommandsArray: any[];
+    userContextMenus: Collection<string, any>;
+    messageContextMenus: Collection<string, any>;
     subCommands: Collection<string, any>;
     buttons: Collection<string, any>;
     modals: Collection<string, any>;
@@ -43,6 +45,8 @@ export const client = new Client({
 // Attach Collections to the Client
 client.prefixCommands = new Collection();
 client.slashCommands = new Collection();
+client.userContextMenus = new Collection();
+client.messageContextMenus = new Collection();
 client.subCommands = new Collection();
 client.buttons = new Collection();
 client.modals = new Collection();
@@ -68,6 +72,7 @@ client.connect = async (): Promise<void> => {
     await import("./src/utilities/modalHandler.js");
     await import("./src/utilities/autocompleteHandler.js");
     await import("./src/utilities/hybridCommandHandler.js");
+    await import("./src/utilities/contextMenuHandler.js");
     
     // Deploy / register application commands
     await import("./src/utilities/registerCommands.js");

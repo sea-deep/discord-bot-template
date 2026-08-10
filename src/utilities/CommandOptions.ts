@@ -1,8 +1,10 @@
-import { PermissionsBitField, ChatInputCommandInteraction, Message, PermissionResolvable } from "discord.js";
+import { PermissionsBitField, ChatInputCommandInteraction, ContextMenuCommandInteraction, Message, PermissionResolvable } from "discord.js";
 import config from "../../Configs/config.js";
 import MessageCommand from "../structures/MessageCommand.js";
 import SlashCommand from "../structures/SlashCommand.js";
 import HybridCommand from "../structures/HybridCommand.js";
+import UserContextMenu from "../structures/UserContextMenu.js";
+import MessageContextMenu from "../structures/MessageContextMenu.js";
 
 const slashCooldowns = new Map<string, Map<string, number>>();
 const messageCooldowns = new Map<string, Map<string, number>>();
@@ -20,14 +22,14 @@ interface CommandSettings {
 }
 
 /**
- * Handles options check for Slash / Application Commands.
- * @param interaction - The ChatInput interaction triggering this command.
+ * Handles options check for Slash / Application Commands / Context Menus.
+ * @param interaction - The ChatInput or ContextMenu interaction triggering this command.
  * @param command - The loaded command metadata structure.
  * @returns True if checks passed, false if blocked.
  */
 export async function handleApplicationCommandOptions(
-  interaction: ChatInputCommandInteraction, 
-  command: SlashCommand | HybridCommand
+  interaction: ChatInputCommandInteraction | ContextMenuCommandInteraction, 
+  command: SlashCommand | HybridCommand | UserContextMenu | MessageContextMenu | any
 ): Promise<boolean> {
   const settings = (command.commandType === "hybrid" ? command : (command.options || {})) as CommandSettings;
 

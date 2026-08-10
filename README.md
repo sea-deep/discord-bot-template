@@ -16,6 +16,8 @@
 - **Prefix Command Handler**
 - **Slash Command Handler**
 - **Hybrid Command Handler**
+- **User Context Menu Handler** (User Apps)
+- **Message Context Menu Handler** (Message Apps)
 - **Button Handler**
 - **Modal Handler**
 - **Autocomplete Handler**
@@ -26,7 +28,8 @@
 ## ✨ Features
 
 - ⚔️ **Hybrid Commands**: Write your logic once. The framework natively routes both `/slash` commands and `!prefix` commands to the exact same callback seamlessly.
-- 🧩 **Granular Handlers**: Dedicated, separated handlers for every modern UI component (Buttons, Modals, Autocomplete, and all 5 types of Select Menus).
+- 🖱️ **Context Menu Commands**: First-class support for User Apps and Message Apps (right-click context actions).
+- 🧩 **Granular Handlers**: Dedicated, separated handlers for every modern UI component (Buttons, Modals, Autocomplete, Context Menus, and all 5 types of Select Menus).
 - 🛡️ **Execution Guards**: Native built-in flags for `ownerOnly`, `guildOnly`, `nsfw`, and permission checks directly on your command objects.
 - ⚡ **Dynamic Resolution**: Hot-reloading in development (`tsx`) and lightning-fast compiled execution in production (`node dist/`).
 
