@@ -11,9 +11,9 @@
 
 ---
 
-## 📁 Repository Structure
+## 🧩 Where to Place Your Code
 
-Where to place your code:
+The template relies on file-based routing to keep your logic strictly organized:
 
 - `Configs/config.ts`: Define your bot's default prefix, developer IDs, and global error messages here.
 - `src/events/`: Place your Discord event listeners (like when a member joins) here.
@@ -68,6 +68,26 @@ This template abstracts away the boilerplate of registering commands and interac
 | :--- | :--- | :--- |
 | **Development** | `npm run dev` | Runs the bot with hot-reloading via `tsx`. |
 | **Production** | `npm run build && npm start` | Compiles the TypeScript to `dist/` and starts the Node process. |
+
+---
+
+## 📁 Detailed Project Structure
+
+```text
+discord-bot-template/
+├── Configs/               # Centralized configuration (config.ts)
+├── src/
+│   ├── structures/        # TypeScript interfaces and abstract classes
+│   ├── utilities/         # Dynamic component loaders and handlers
+│   ├── helpers/           # Helper classes (Logger, CommandContext)
+│   ├── HybridCommands/    # ➔ Your Dual Slash/Prefix Commands
+│   ├── PrefixCommands/    # ➔ Your Prefix-Only Commands
+│   ├── Interactions/      # ➔ Your Interactive Components (Buttons, Modals, Menus)
+│   ├── events/            # ➔ Your Event Listeners
+│   └── index.ts           # Main entry point (binds loaded components to Discord.js)
+├── .env.example           # Environment template
+└── package.json           # Dependencies and scripts
+```
 
 ---
 
